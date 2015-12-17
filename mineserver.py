@@ -29,39 +29,29 @@ class Mineserver(ServerProtocol):
         self.logger.info("%s successfully logged in." % self.fquid)
 
         p.game(self, self.eid, 1, 0, 1, options.maxplayers, "default", False)
-        self.logger.info("sent game")
         p.spawn_pos(self, 0, 64, 0)
-        self.logger.info("sent spawn_pos")
         p.abilities(self, True, True, True, True, 0.2, 0.2)
-        self.logger.info("sent abilities")
         p.pos_look(self, 0, 64, 0, 0, 0, False)
-        self.logger.info("sent pos_look")
         p.rain(self, True)
-        self.logger.info("sent rain")
         p.empty_chunk(self, 0, 0)
-        self.logger.info("sent empty_chunk")
         
         # Schedule 6-second sending of keep-alive packets.
         self.tasks.add_loop(6, self.keepalive_send)
-        self.logger.info("sent * started keepalive_send")
         
         pushChat("\u00A7e" + self.username + " has joined the game\u00A7r", 1)
-        self.logger.info("sent joinmsg chat")
         
         # Send welcome title and subtitle
-        self.send_packet('title', self.buff_type.pack_varint(0) + self.buff_type.pack_chat(options.wtitle))
-        self.logger.info("sent title *old")
-        self.send_packet('title', self.buff_type.pack_varint(1) + self.buff_type.pack_chat(options.wst))
-        self.logger.info("sent subtitle *old")
+        p.title(self, options.wtitle)
+        p.subtitle(self options.wst)
         
         p.chat_json(self, dats.join_json(self), 1)
-        self.logger.info("sent jsonjoinmsg")
     def player_left(self):
+        ServerProtocol.player_left(self)
         pushChat("\u00A7e" + self.username + " has left the game\u00A7r", 1)
         eobj_byid[self.eid] = None
     def keepalive_send(self):
         self.last_keepalive = random_digits(randint(4, 9))
-        self.send_packet("keep_alive", self.buff_type.pack_varint(self.last_keepalive))
+        p.keep_alive(self, self.last_keepalive)
     def packet_keep_alive(self, buff):
         if buff.unpack_varint() == self.last_keepalive: pass
         else:
@@ -73,14 +63,6 @@ class Mineserver(ServerProtocol):
                 self.close("Timed out: did not ping for 24 seconds.")
     def packet_chat_message(self, buff):
         pushChat("<" + self.username + "> " + buff.unpack_string().replace(u"§", ""), 0)
-    def packet_player(self, buff):
-        pass
-    def packet_player_position(self, buff):
-        pass
-    def packet_player_look(self, buff):
-        pass
-    def packet_player_position_and_look(self, buff):
-        pass
 
 class MineFactory(ServerFactory):
     protocol = Mineserver

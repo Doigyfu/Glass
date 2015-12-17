@@ -31,7 +31,22 @@ def game(self, eid, gm, dim, dfc, maxp, type, dbg): # args: int (entity id, game
     self.send_packet("join_game", self.buff_type.pack('iBbBB', eid, gm, dim, dfc, maxp) + self.buff_type.pack_string(type) + self.buff_type.pack('?', dbg))
 
 def chat(self, msgb, tp): # args: (message[str], tp[int])
-    self.send_packet('chat_message', self.buff_type.pack_chat(u(msgb)) + self.buff_type.pack('b', tp))
+    self.send_packet('chat_message', self.buff_type.pack_chat(u(msgb)) + self.buff_type.pack('b', tp)) if not self == None else u("")
 
 def chat_json(self, msgb, tp): # args: (message[dict], tp[int])
     self.send_packet('chat_message', self.buff_type.pack_json(msgb) + self.buff_type.pack('b', tp))
+
+def title(self, msgb):
+    self.send_packet('title', self.buff_type.pack_varint(0) + self.buff_type.pack_chat(msgb))
+
+def subtitle(self, msgb):
+    self.send_packet('title', self.buff_type.pack_varint(1) + self.buff_type.pack_chat(msgb))
+
+def title_json(self, msgb):
+    self.send_packet('title', self.buff_type.pack_varint(0) + self.buff_type.pack_json(msgb))
+
+def subtitle_json(self, msgb):
+    self.send_packet('title', self.buff_type.pack_varint(1) + self.buff_type.pack_json(msgb))
+
+def keep_alive(self, vienc):
+    self.send_packet("keep_alive", self.buff_type.pack_varint(vienc))
