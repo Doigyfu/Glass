@@ -8,6 +8,7 @@ from os import system
 import packet as p
 import permissions as perms
 import randomdata as dats
+import commands as cmd
 
 idcounter = -1
 eobj_byid = {}
@@ -42,7 +43,7 @@ class Mineserver(ServerProtocol):
         
         # Send welcome title and subtitle
         p.title(self, options.wtitle)
-        p.subtitle(self options.wst)
+        p.subtitle(self, options.wst)
         
         p.chat_json(self, dats.join_json(self), 1)
     def player_left(self):
@@ -62,7 +63,8 @@ class Mineserver(ServerProtocol):
                 self.logger.info("Kicking player " + self.username + " for not responding to keepalives for 24 seconds.")
                 self.close("Timed out: did not ping for 24 seconds.")
     def packet_chat_message(self, buff):
-        pushChat("<" + self.username + "> " + buff.unpack_string().replace(u"§", ""), 0)
+        _atmp = buff.unpack_string()
+        cmd.handle(_atmp) if _atmp[0] == "/" else pushChat("<" + self.username + "> " + _atmp.replace(u"§", ""), 0)
 
 class MineFactory(ServerFactory):
     protocol = Mineserver
