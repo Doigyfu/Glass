@@ -1,2 +1,2 @@
 import commands.cmds as cmds
-from commands import handle
+from commands.handle import *

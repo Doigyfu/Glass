@@ -64,10 +64,11 @@ class Mineserver(ServerProtocol):
                 self.close("Timed out: did not ping for 24 seconds.")
     def packet_chat_message(self, buff):
         _atmp = buff.unpack_string()
-        cmd.handle(_atmp) if _atmp[0] == "/" else pushChat("<" + self.username + "> " + _atmp.replace(u"§", ""), 0)
+        cmd.handle(self, _atmp) if _atmp[0] == "/" else pushChat("<" + self.username + "> " + _atmp.replace("\u00A7", ""), 0)
 
 class MineFactory(ServerFactory):
     protocol = Mineserver
+    favicon = "creeper.png"
 
 
 def getFreeId():
