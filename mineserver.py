@@ -68,7 +68,6 @@ class Mineserver(ServerProtocol):
 
 class MineFactory(ServerFactory):
     protocol = Mineserver
-    favicon = "creeper.png"
 
 
 def getFreeId():
@@ -98,9 +97,10 @@ def main(args):
     parser.add_option("-o", "--offline", action="store_false", dest="auth", default=True, help="offline mode does not authenticate players!")
     parser.add_option("-k", "--downtime", action="store_true", dest="down", default=False, help="kick players with downtimemsg")
     parser.add_option("-q", "--downtimemsg", dest="downmsg", default="Sorry, but this server is currently down for maintainence. Check back soon!", help="message to kick for downtime with")
-    parser.add_option("-w", "--wtitle", dest="wtitle", default="Welcome to Mineserver!", help="Title to display on join")
-    parser.add_option("-s", "--wsubtitle", dest="wst", default="Enjoy this test server!", help="Subtitle to display on join")
+    parser.add_option("-w", "--wtitle", dest="wtitle", default="Welcome to Mineserver!", help="title to display on join")
+    parser.add_option("-s", "--wsubtitle", dest="wst", default="Enjoy this test server!", help="subtitle to display on join")
     parser.add_option("-l", "--max-players", dest="maxplayers", default=20, help="max player count/limit")
+    parser.add_option("-f", "--favicon", dest="favicon", default="creeper.png", help="relative path to server favicon in png")
     global options
     (options, args) = parser.parse_args(args)
     
@@ -114,6 +114,7 @@ def main(args):
     factory = MineFactory()
     factory.motd = options.motd
     factory.online_mode = options.auth
+    factory.favicon = options.favicon
 
     # Listen
     factory.listen(options.host, options.port)
