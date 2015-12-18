@@ -1,7 +1,7 @@
 import commands.cmds as cmds
 
 def handle(self, chat_raw):
-    self.logger.info("Handling command: " + chatraw + " (for player" + self.fquid + ")")
+    self.logger.info("Handling command: " + chat_raw + " (for player" + self.fquid + ")")
     _atmp1 = chat_raw.split(" ")
     _atmp2 = list(_atmp1[0])
     del _atmp2[0]

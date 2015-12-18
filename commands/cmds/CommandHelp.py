@@ -1,4 +1,4 @@
-from commands.cmds import BaseCommand
+from commands.cmds.BaseCommand import *
 from packet.send import chat
 
 class CommandHelp(BaseCommand):
