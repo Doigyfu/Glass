@@ -1,4 +1,5 @@
 import commands.cmds as cmds
+from commands.cmds import CommandHelper
 
 def handle(self, chat_raw):
     self.logger.info("Handling command: " + chatraw + " (for player" + self.fquid + ")")
@@ -12,4 +13,4 @@ def handle(self, chat_raw):
         "scope": self,
         "chat_raw": chat_raw
     }
-    commands.cmds.InvalidCommand.begin(self, cmdobj) if _atmp2 not in commands.cmds.baseList else commands.cmds.baseList[_atmp2].begin(self, cmdobj)
+   CommandHelper(cmds.InvalidCommand, cmdobj) if _atmp2 not in cmds.baseList else CommandHelper(cmds.baseList[_atmp2], cmdobj)
