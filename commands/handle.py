@@ -12,4 +12,4 @@ def handle(self, chat_raw):
         "scope": self,
         "chat_raw": chat_raw
     }
-    commands.cmds.InvalidCommand.begin(self, cmdobj) if _atmp2 not in commands.cmds.baseList else commands.cmds.baseList[_atmp2].begin(self, cmdobj)
+    cmds.InvalidCommand.begin(self, cmdobj) if _atmp2 not in cmds.baseList else cmds.baseList[_atmp2].begin(self, cmdobj)
