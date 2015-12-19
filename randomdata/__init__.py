@@ -41,6 +41,8 @@ def join_json(self):
             }, {
                 'text': "**",
                 'obfuscated': True
+            }, {
+                'text': '\n'
             }]
         }
 

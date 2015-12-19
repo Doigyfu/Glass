@@ -27,7 +27,7 @@ class Mineserver(ServerProtocol):
         self.eid = dats.getFreeId()
         self.fquid = self.username + "[/" + self.ip + "](" + str(self.uuid) + ")"
         eobj_byid[self.eid] = self
-        self.logger.imfo("UUID of player Dragon5232 is " + str(self.uuid))
+        self.logger.info("UUID of player Dragon5232 is " + str(self.uuid))
         
         p.game(self, self.eid, 1, 0, 1, options.maxplayers, "default", False)
         p.spawn_pos(self, 0, 64, 0)
@@ -71,9 +71,6 @@ class MineFactory(ServerFactory):
     protocol = Mineserver
 
 
-
-
-
 def random_digits(n):
     range_start = 10**(n-1)
     range_end = (10**n)-1
@@ -84,7 +81,7 @@ def pushChat(msga, t):
     acount = 0
     for pobja in eobj_byid:
         p.chat(eobj_byid[pobja], msga, t)
-        if acount not is 1:
+        if acount != 1:
             eobj_byid[pobja].logger.info("[CHAT] " + msga)
             acount = 1
 
