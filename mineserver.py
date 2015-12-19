@@ -24,17 +24,18 @@ class Mineserver(ServerProtocol):
         ServerProtocol.player_joined(self)
 
         self.ip = self.remote_addr.host
-        self.eid = getFreeId()
+        self.eid = dats.getFreeId()
         self.fquid = self.username + "[/" + self.ip + "](" + str(self.uuid) + ")"
         eobj_byid[self.eid] = self
-        self.logger.info("%s successfully logged in." % self.fquid)
-
+        self.logger.imfo("UUID of player Dragon5232 is " + str(self.uuid))
+        
         p.game(self, self.eid, 1, 0, 1, options.maxplayers, "default", False)
         p.spawn_pos(self, 0, 64, 0)
         p.abilities(self, True, True, True, True, 0.2, 0.2)
         p.pos_look(self, 0, 64, 0, 0, 0, False)
         p.rain(self, True)
         p.empty_chunk(self, 0, 0)
+        self.logger.info(self.username + "[/" + self.ip + "] logged in with entity id " + str(self.eid) + " at ([nonexistent](0.0, 64.0, 0.0))")
         
         # Schedule 6-second sending of keep-alive packets.
         self.tasks.add_loop(6, self.keepalive_send)
@@ -70,10 +71,7 @@ class MineFactory(ServerFactory):
     protocol = Mineserver
 
 
-def getFreeId():
-    global idcounter
-    idcounter += 1
-    return idcounter
+
 
 
 def random_digits(n):

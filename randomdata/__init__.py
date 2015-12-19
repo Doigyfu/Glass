@@ -1,3 +1,5 @@
+idcounter = -1
+
 def join_json(self):
     return {
             'text': "",
@@ -41,3 +43,9 @@ def join_json(self):
                 'obfuscated': True
             }]
         }
+
+
+def getFreeId():
+    global idcounter
+    idcounter += 1
+    return idcounter
