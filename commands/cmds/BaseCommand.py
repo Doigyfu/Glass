@@ -1,4 +1,4 @@
-class BaseCommand(type):
+class BaseCommand():
     def begin(self, cmdobj):
         self.cmdobj = cmdobj
     	self.process()

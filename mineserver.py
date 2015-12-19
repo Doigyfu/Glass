@@ -83,8 +83,12 @@ def random_digits(n):
 
 
 def pushChat(msga, t):
+    acount = 0
     for pobja in eobj_byid:
         p.chat(eobj_byid[pobja], msga, t)
+        if acount not is 1:
+            eobj_byid[pobja].logger.info("[CHAT] " + msga)
+            acount = 1
 
 
 def main(args):
