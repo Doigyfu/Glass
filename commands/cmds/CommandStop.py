@@ -12,12 +12,12 @@ class cmd(BaseCommand):
             self.reason = " (" + self.cmdobj['args_raw'][0] + ")"
         except IndexError:
             self.reason = ""
-        chat(self.cmdobj['scope'], "\u00A7o\u00A78[" + self.cmdobj['scope'].username + ": Stopping the server" + reason + "]\u00A7r", 1)
-        dokickprocess()
+        chat(self.cmdobj['scope'], "\u00A7o\u00A78[" + self.cmdobj['scope'].username + ": Stopping the server" + self.reason + "]\u00A7r", 1)
+        self.dokickprocess()
         for plindex in eobj_byid:
             leftcounter = leftcounter + 1
         if leftcounter != 0:
-            dokickprocess()
+            self.dokickprocess()
         else:
             print("Mineserver (INFO/warn)> The server is shutting down from /stop command signal. Reason:" + self.reason)
             sysex()

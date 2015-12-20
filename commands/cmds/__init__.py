@@ -1,10 +1,10 @@
-from commands.cmds.CommandHelp import *
-from commands.cmds.InvalidCommand import *
-from commands.cmds.CommandPlugins import *
-from commands.cmds.CommandStop import *
-from commands.cmds.CommandFly import *
-from commands.cmds.CommandGamemode import *
-from commands.cmds.CommandGod import *
+from commands.cmds.CommandHelp import cmd
+from commands.cmds.InvalidCommand import cmd
+from commands.cmds.CommandPlugins import cmd
+from commands.cmds.CommandStop import cmd
+from commands.cmds.CommandFly import cmd
+from commands.cmds.CommandGamemode import cmd
+from commands.cmds.CommandGod import cmd
 
 baseList = {
 	"help": CommandHelp.cmd,
@@ -14,5 +14,6 @@ baseList = {
     "gamemode": CommandGamemode.cmd,
     "gm#a{gamemode}": CommandGamemode.cmd,
     "god": CommandGod.cmd,
-    "godmode#a{god}": CommandGod.cmd
+    "godmode#a{god}": CommandGod.cmd,
+    "plugins": CommandPlugins.cmd
 }
