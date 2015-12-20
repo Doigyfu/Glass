@@ -12,7 +12,6 @@ import json
 from sys import exit as sysex
 from server_core.chat import pushChat, pushChatCall
 
-global eobj_byid
 eobj_byid = {}
 
 class Mineserver(ServerProtocol):
@@ -23,6 +22,7 @@ class Mineserver(ServerProtocol):
             buff.discard()
             self.close(options.downmsg)
     def player_joined(self):
+        global eobj_byid
         ServerProtocol.player_joined(self)
 
         self.ip = self.remote_addr.host
@@ -42,7 +42,7 @@ class Mineserver(ServerProtocol):
         # Schedule 6-second sending of keep-alive packets.
         self.tasks.add_loop(6, self.keepalive_send)
         
-        pushChat("\u00A7e" + self.username + " has joined the game\u00A7r", 1)
+        pushChat(eobj_byid, "\u00A7e" + self.username + " has joined the game\u00A7r", 1)
         
         # Send welcome title and subtitle
         p.title(self, options.wtitle)
@@ -50,8 +50,9 @@ class Mineserver(ServerProtocol):
         
         p.chat_json(self, dats.join_json(self), 1)
     def player_left(self):
+        global eobj_byid
         ServerProtocol.player_left(self)
-        pushChatCall("\u00A7e" + self.username + " has left the game\u00A7r", 1, self.destroy)
+        pushChatCall(eobj_byid, "\u00A7e" + self.username + " has left the game\u00A7r", 1, self.destroy)
     def keepalive_send(self):
         self.last_keepalive = random_digits(randint(4, 9))
         p.keep_alive(self, self.last_keepalive)
@@ -65,9 +66,11 @@ class Mineserver(ServerProtocol):
                 self.logger.info("Kicking player " + self.username + " for not responding to keepalives for 24 seconds.")
                 self.close("Timed out: did not ping for 24 seconds.")
     def packet_chat_message(self, buff):
+        global eobj_byid
         _atmp = buff.unpack_string()
-        cmd.handle(self, _atmp) if _atmp[0] == "/" else pushChat("<" + self.username + "> " + _atmp.replace("\u00A7", ""), 0)
+        cmd.handle(self, _atmp) if _atmp[0] == "/" else pushChat(eobj_byid, "<" + self.username + "> " + _atmp.replace("\u00A7", ""), 0)
     def destroy(self):
+        global eobj_byid
         eobj_byid[self.eid] = None
     
 

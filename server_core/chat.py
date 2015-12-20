@@ -1,5 +1,6 @@
-def pushChat(msga, t):
-    global eobj_byid
+import packet as p
+
+def pushChat(eobj_byid, msga, t):
     acount = 0
     for pobja in eobj_byid:
         p.chat(eobj_byid[pobja], msga, t)
@@ -8,8 +9,7 @@ def pushChat(msga, t):
             acount = 1
 
 
-def pushChatCall(msga, t, cfn):
-    global eobj_byid
+def pushChatCall(eobj_byid, msga, t, cfn):
     acount = 0
     for pobja in eobj_byid:
         p.chat(eobj_byid[pobja], msga, t)
