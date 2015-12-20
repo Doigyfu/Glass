@@ -10,6 +10,7 @@ import randomdata as dats
 import commands as cmd
 import json
 from sys import exit as sysex
+from server_core.chat import pushChat, pushChatCall
 
 global eobj_byid
 eobj_byid = {}
@@ -78,25 +79,6 @@ def random_digits(n):
     range_start = 10**(n-1)
     range_end = (10**n)-1
     return randint(range_start, range_end)
-
-
-def pushChat(msga, t):
-    acount = 0
-    for pobja in eobj_byid:
-        p.chat(eobj_byid[pobja], msga, t)
-        if acount != 1:
-            eobj_byid[pobja].logger.info("[CHAT] " + msga)
-            acount = 1
-
-
-def pushChatCall(msga, t, cfn):
-    acount = 0
-    for pobja in eobj_byid:
-        p.chat(eobj_byid[pobja], msga, t)
-        if acount != 1:
-            eobj_byid[pobja].logger.info("[CHAT] " + msga)
-            acount = 1
-    cfn()
 
 
 def main(args):
