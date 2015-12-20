@@ -48,5 +48,8 @@ def title_json(self, msgb):
 def subtitle_json(self, msgb):
     self.send_packet('title', self.buff_type.pack_varint(1) + self.buff_type.pack_json(msgb))
 
-def keep_alive(self, vienc):
+def keep_alive(self, vienc): # args: (varint data[int])
     self.send_packet("keep_alive", self.buff_type.pack_varint(vienc))
+
+def kick(self, rson): # args: (reason[str])
+    self.close(rson)

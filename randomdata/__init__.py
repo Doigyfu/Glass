@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 idcounter = -1
 
 def join_json(self):
@@ -48,6 +49,83 @@ def join_json(self):
 
 
 def getFreeId():
-    global idcounter
     idcounter += 1
     return idcounter
+
+
+def help_json(self):
+    return {
+            "text": "",
+            "extra": [{
+                "text": "---------",
+                "color": "yellow"
+            }, {
+                "text": " Help: Index (" + self.pagenm + "/" + str(self.pages) + ") "
+            }, {
+                "text": "---------------------",
+                "color": "yellow"
+            }, {
+                "text": "\nUse /help [",
+                "color": "gray"
+            }, {
+                "text": "n",
+                "color": "gray",
+                "italic": True
+            }, {
+                "text": "] to get page ",
+                "color": "gray"
+            }, {
+                "text": "n",
+                "color": "gray",
+                "italic": True
+            }, {
+                "text": " of help.",
+                "color": "gray"
+            }, {
+                "text": "\nMineserver: ",
+                "color": "gold"
+            }, {
+                "text": "All commands for Mineserver"
+            }, {
+                "text": "\n/help: ",
+                "color": "gold"
+            }, {
+                "text": "Shows the help menu"
+            }, {
+                "text": "\n/plugins: ",
+                "color": "gold"
+            }, {
+                "text": "Get a list of plugins running on the server"
+            }, {
+                "text": "\n--------------------",
+                "color": "yellow"
+            }, {
+                "text": "««",
+                "color": "green",
+                "hoverEvent": {
+                    "action": "show_text",
+                    "value": {
+                        "text": "« Previous Page",
+                        "color": "gold",
+                        "italic": True
+                    }
+                }
+            }, {
+                "text": " 1 ",
+                "color": "yellow"
+            }, {
+                "text": "»»",
+                "color": "green",
+                "hoverEvent": {
+                    "action": "show_text",
+                    "value": {
+                        "text": "Next Page »",
+                        "color": "gold",
+                        "italic": True
+                    }
+                }
+            }, {
+                "text": "-------------------",
+                "color": "yellow"
+            }]
+        }
