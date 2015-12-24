@@ -53,3 +53,9 @@ def keep_alive(self, vienc): # args: (varint data[int])
 
 def kick(self, rson): # args: (reason[str])
     self.close(rson)
+
+def plist_head_foot(self, msga, msgb): # args: str (header, footer)
+    self.send_packet("player_list_header_footer", self.buff_type.pack_chat(msga) + self.buff_type.pack_chat(msgb))
+
+def block_change(self, x, y, z, id): # args: int (x, y, z, block id)
+    self.send_packet("block_change", self.buff_type.pack('q', ((x & 0x3FFFFFF) << 38) | ((y & 0xFFF) << 26) | (z & 0x3FFFFFF)) + self.buff_type.pack_varint((id << 4) | 0))

@@ -13,8 +13,11 @@ from sys import exit as sysex
 from server_core.chat import pushChat, pushChatCall
 
 eobj_byid = {}
+anim_i = 0
 
 class Mineserver(ServerProtocol):
+    plugins = ["Mineserver Core", "TotallyNotAPlugin", "example"]
+    
     def packet_login_start(self, buff):
         if not options.down:
             ServerProtocol.packet_login_start(self, buff)
@@ -22,27 +25,33 @@ class Mineserver(ServerProtocol):
             buff.discard()
             self.close(options.downmsg)
     def player_joined(self):
-        global eobj_byid
         ServerProtocol.player_joined(self)
 
         self.ip = self.remote_addr.host
         self.eid = dats.getFreeId()
         self.fquid = self.username + "[/" + self.ip + "](" + str(self.uuid) + ")"
+        self.base_scba_split = list("PyMINESERVER")
+        self.anim_i = 0
         eobj_byid[self.eid] = self
         self.logger.info("UUID of player Dragon5232 is " + str(self.uuid))
         
         p.game(self, self.eid, 1, 0, 1, options.maxplayers, "default", False)
-        p.spawn_pos(self, 0, 64, 0)
+        p.spawn_pos(self, 0, 66, 0)
         p.abilities(self, True, True, True, True, 0.2, 0.2)
-        p.pos_look(self, 0, 64, 0, 0, 0, False)
+        p.pos_look(self, 0, 66, 0, 0, 0, False)
         p.rain(self, True)
         p.empty_chunk(self, 0, 0)
+        p.block_change(self, 0, 64, 0, 1)
+        if self.protocol_version == 47: p.plist_head_foot(self, u"§6P§2yMINESERVER§r", u"§eEnjoy the Test§r")
+        if self.protocol_version == 47: self.tasks.add_loop(1.0/20, self.anim_frame_scb)
+        relayPlayerList()
         self.logger.info(self.username + "[/" + self.ip + "] logged in with entity id " + str(self.eid) + " at ([nonexistent](0.0, 64.0, 0.0))")
         
         # Schedule 6-second sending of keep-alive packets.
         self.tasks.add_loop(6, self.keepalive_send)
         
-        pushChat(eobj_byid, "\u00A7e" + self.username + " has joined the game\u00A7r", 1)
+        self.eobj_byid = eobj_byid
+        pushChat(self, "\u00A7e" + self.username + " has joined the game\u00A7r", 1)
         
         # Send welcome title and subtitle
         p.title(self, options.wtitle)
@@ -50,9 +59,9 @@ class Mineserver(ServerProtocol):
         
         p.chat_json(self, dats.join_json(self), 1)
     def player_left(self):
-        global eobj_byid
         ServerProtocol.player_left(self)
-        pushChatCall(eobj_byid, "\u00A7e" + self.username + " has left the game\u00A7r", 1, self.destroy)
+        self.eobj_byid = eobj_byid
+        pushChatCall(self, "\u00A7e" + self.username + " has left the game\u00A7r", 1, self.destroy)
     def keepalive_send(self):
         self.last_keepalive = random_digits(randint(4, 9))
         p.keep_alive(self, self.last_keepalive)
@@ -66,12 +75,19 @@ class Mineserver(ServerProtocol):
                 self.logger.info("Kicking player " + self.username + " for not responding to keepalives for 24 seconds.")
                 self.close("Timed out: did not ping for 24 seconds.")
     def packet_chat_message(self, buff):
-        global eobj_byid
         _atmp = buff.unpack_string()
-        cmd.handle(self, _atmp) if _atmp[0] == "/" else pushChat(eobj_byid, "<" + self.username + "> " + _atmp.replace("\u00A7", ""), 0)
+        self.eobj_byid = eobj_byid
+        cmd.handle(self, _atmp) if _atmp[0] == "/" else pushChat(self, "<" + self.username + "> " + _atmp.replace("\u00A7", ""), 0)
     def destroy(self):
-        global eobj_byid
         eobj_byid[self.eid] = None
+    def nothing(self):
+        random = "2random4me"
+    def anim_frame_scb(self):
+        self.sstmp = self.base_scba_split
+        if self.anim_i >= len(self.sstmp): self.anim_i = 0
+        self.sstmp[self.anim_i] = u"§6" + self.sstmp[anim_i] + u"§2"
+        p.plist_head_foot(self, u"§2" + sstmp + u"§r", u"§eEnjoy the Test§r")
+        anim_i += 1
     
 
 class MineFactory(ServerFactory):
@@ -83,6 +99,9 @@ def random_digits(n):
     range_end = (10**n)-1
     return randint(range_start, range_end)
 
+
+def relayPlayerList():
+    return None
 
 def main(args):
     # Parse options

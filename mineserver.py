@@ -7,6 +7,4 @@ from __future__ import print_function
 from server_core.server import *
 import sys
 
-eobj_byid = {}
-
 main(sys.argv[1:])

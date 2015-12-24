@@ -3,6 +3,9 @@ from packet.send import chat
 
 class cmd(BaseCommand):
     def process(self):
-	    chat(self.cmdobj['scope'], self.jsconcat(), 1)
+        self.osc = self.cmdobj['scope']
+        chat(self.osc, self.jsconcat(), 1)
     def jsconcat(self):
-        return "Plugins (" + self.pcount or 0 + "): "
+        self.plugins = self.osc.plugins
+        self.pcount = len(self.plugins)
+        return "Plugins (" + str(self.pcount) + "): " + ", ".join(self.plugins)
