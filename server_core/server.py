@@ -112,7 +112,7 @@ def main(args):
     parser.add_option("-m", "--motd", dest="motd", default="PyMineserver: Test. Hello! Now with joining! §b§l\\o/§r", type="string", help="motd to send to clients")
     parser.add_option("-o", "--offline", action="store_false", dest="auth", default=True, help="offline mode does not authenticate players!")
     parser.add_option("-k", "--downtime", action="store_true", dest="down", default=False, help="kick players with downtimemsg")
-    parser.add_option("-q", "--downtimemsg", dest="downmsg", default="Sorry, but this server is currently down for maintainence. Check back soon!", help="message to kick for downtime with")
+    parser.add_option("-q", "--downtimemsg", dest="downmsg", default="Sorry, but this server is currently down for maintenance. Check back soon!", help="message to kick for downtime with")
     parser.add_option("-w", "--wtitle", dest="wtitle", default="Welcome to Mineserver!", help="title to display on join")
     parser.add_option("-s", "--wsubtitle", dest="wst", default="Enjoy this test server!", help="subtitle to display on join")
     parser.add_option("-l", "--max-players", dest="maxplayers", default=20, help="max player count/limit")
