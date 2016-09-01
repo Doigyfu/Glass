@@ -44,13 +44,15 @@ def game(self, entity_id, gamemode, dimension, difficulty, max_players, type,
         type) + self.buff_type.pack('?', dbg))
 
 
-def chat(self, msgb, tp):  # args: (message[str], tp[int])
+def chat(self, message_bytes, position):  # args: (message[str], tp[int])
     self.send_packet('chat_message',
-                     self.buff_type.pack_chat(u(msgb)) + self.buff_type.pack('b', tp)) if not self == None else u("")
+                     self.buff_type.pack_chat(u(message_bytes)) + self.buff_type.pack('b',
+                                                                                      position)) if not self == None else u(
+        "")
 
 
-def chat_json(self, msgb, tp):  # args: (message[dict], tp[int])
-    self.send_packet('chat_message', self.buff_type.pack_json(msgb) + self.buff_type.pack('b', tp))
+def chat_json(self, message_bytes, position):  # args: (message[dict], tp[int])
+    self.send_packet('chat_message', self.buff_type.pack_json(message_bytes) + self.buff_type.pack('b', position))
 
 
 def title(self, msgb):

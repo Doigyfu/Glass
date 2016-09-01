@@ -1,7 +1,5 @@
-import packet as p
+from server import players
 
-
-# from server import players
 
 def pushChat(self, message, position):
     acount = 0
@@ -18,13 +16,11 @@ def pushChatCall(self, message, position=0):
         p.chat(self.players[player], message, t)
         if acount != 1:
             self.eobj_byid[pobja].logger.info("[CHAT] " + msga)
-            acount = 1
-    cfn()
 
 
-# def global_chat(self, message):
-#    for entity_id,player_object in players.iteritems():
-#        player_object.
+def global_chat(message):
+    for entity_id, player_object in players.iteritems():
+        player_object.logger.info(message)
 
 # import commands.cmds as cmds
 
