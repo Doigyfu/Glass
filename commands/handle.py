@@ -14,4 +14,5 @@ def handle(self, chat_raw):
         "chat_raw": chat_raw
     }
     if _atmp3 not in cmds.baseList: cmds.InvalidCommand.cmd.begin(cmds.InvalidCommand.cmd(), cmdobj)
-    else: cmds.baseList[_atmp3].begin(cmds.baseList[_atmp3](), cmdobj)
+    else:
+        cmds.baseList[c].begin(cmds.baseList[_atmp3](), cmdobj)
