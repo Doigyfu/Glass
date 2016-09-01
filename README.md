@@ -1,11 +1,9 @@
-# pymineserver
-PyMineserver: the first fully functional Minecraft Modern server in Python, supporting 1.8.x and 1.7.5+ protocols. [WIP]
+# Puremine
+Puremine: Minecraft Modern server in Python - under heavy development
 
-To install libraries:
+To install libraries just type:
 ```
-pip install quarry
-pip install openssl
-pip install service_identity
+pip install -r requirements.txt
 ```
 
 Supports only *Python 2.7*, Python 3 support is planned.
