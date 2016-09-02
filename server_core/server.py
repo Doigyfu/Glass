@@ -103,7 +103,7 @@ class Mineserver(ServerProtocol):
     def packet_chat_message(self, buff):
         chat_message = buff.unpack_string()
         if chat_message[0] == '/':
-            self.handle_command(chat_message)
+            self.handle_command(chat_message[1:])  # Slice to shrink slash
         else:
             self.handle_chat(chat_message)
 
