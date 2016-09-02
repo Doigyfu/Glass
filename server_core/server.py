@@ -5,6 +5,7 @@
 from __future__ import print_function
 
 import codecs
+import logging
 
 
 def u(x):
@@ -175,4 +176,5 @@ class Mineserver(ServerProtocol):
 
 
 class MineFactory(ServerFactory):
+    log_level = logging.DEBUG  # For testing
     protocol = Mineserver
