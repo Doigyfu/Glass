@@ -80,21 +80,21 @@ class Mineserver(ServerProtocol):
                 self.close("Timed out: did not ping for 24 seconds.")
 
     def handle_chat(self, message):
-        if message == "stop":
-            # TODO: Implement this as plugin
-            from twisted.internet import reactor
-            reactor.removeAll()
-            reactor.iterate()
-            reactor.stop()
         # TODO: add chat event to plugins
         self.send_chat("{0}: {1}".format(self.username, message))
 
     def handle_command(self, command_string):
-        #TODO: add command event to plugins
+
+        # TODO: add command event to plugins
         self.logger.info("Player " + self.username + " issued server command: " + command_string)
         command_list = command_string.split(" ")  # Command list - e.g ['/login','123123123','123123123']
         command, arguments = command_list[0], command_string.split(" ")[1:]  # Get command and arguments
-
+        # TODO: Implement this as plugin
+        if command == "stop":
+            from twisted.internet import reactor
+            reactor.removeAll()
+            reactor.iterate()
+            reactor.stop()
         self.logger.info(command + str(arguments))
 
     def packet_player_position(self, buff):
