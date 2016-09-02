@@ -48,11 +48,6 @@ def join_json(self):
         }
 
 
-def getFreeId():
-    global idcounter
-    idcounter += 1
-    return idcounter
-
 
 def help_json(self):
     return {

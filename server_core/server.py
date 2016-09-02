@@ -24,6 +24,10 @@ class Mineserver(ServerProtocol):
     def packet_login_start(self, buff):
         ServerProtocol.packet_login_start(self, buff)
 
+    def get_free_id(self):
+        idcounter += 1
+        return idcounter
+
     def player_joined(self):
         ServerProtocol.player_joined(self)
         self.ip = self.remote_addr.host
@@ -163,7 +167,7 @@ class Mineserver(ServerProtocol):
         self.send_packet("keep_alive", self.buff_type.pack_varint(keepalive_id))
 
     def send_kick(self, reason):  # args: (reason[str])
-        self.close(reason)
+        self.close(reason)  # Close connection
 
     def send_plist_head_foot(self, header, footer):  # args: str (header, footer)
         self.send_packet("player_list_header_footer",
