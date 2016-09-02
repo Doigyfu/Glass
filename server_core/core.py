@@ -1,7 +1,5 @@
 # coding=utf-8
-from quarry.net.server import ServerFactory
-
-from server_core.server import Mineserver
+from server_core.server import Mineserver, MineFactory
 
 
 class Pureserver(Mineserver):
@@ -11,12 +9,14 @@ class Pureserver(Mineserver):
         self.logger.info("he leaved :(")
 
 
-class MineFactory(ServerFactory):
+class PureFactory(MineFactory):
     protocol = Pureserver
+    max_players = 100
+    online_mode = False
 
 
 def main():
-    factory = MineFactory()
+    factory = PureFactory()
     factory.motd = "Pureserver test"
     factory.online_mode = False
 

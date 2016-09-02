@@ -5,7 +5,6 @@
 from __future__ import print_function
 
 import codecs
-import logging
 
 
 def u(x):
@@ -29,17 +28,20 @@ class Mineserver(ServerProtocol):
         global id_counter
         id_counter += 1
         return id_counter
+
     def player_joined(self):
         ServerProtocol.player_joined(self)
         self.ip = self.remote_addr.host
         self.spawn_position = Position(0, 66, 0)
         self.entity_id = self.get_free_id()
+        # self.send_chat(str(self.entity_id))
         self.default_gamemode = 1  # 0: Survival, 1: Creative, 2: Adventure, 3: Spectator. Bit 3 (0x8) is the hardcore flag.
         self.dimension = 0  # -1: Nether, 0:Overworld, 1:End
         self.difficulty = 0  # 0:peaceful,1:easy,2:normal,3:hard
-        self.max_players = 20  # Was once used by the client to draw the player list, but now is ignored
+        self.max_players = 25  # Was once used by the client to draw the player list, but now is ignored
         self.level_type = "default"  # default, flat, largeBiomes, amplified, default_1_1
         self.reduced_debug_info = False  # If true, a Notchian client shows reduced information on the debug screen.
+        #self.send_chat(str(self.uuid))
         players[self.entity_id] = self
         self.logger.info("UUID of player {0} is {1}".format(self.username, self.uuid))
         self.send_game(self.entity_id, self.default_gamemode, self.dimension, self.difficulty, self.max_players,
@@ -66,7 +68,7 @@ class Mineserver(ServerProtocol):
         except Exception as ex:
             print(ex.message)
             print("ERROR IN LEAVE EVENT!")
-        players[self.entity_id] = None
+        del players[self.entity_id]
         ServerProtocol.player_left(self)
 
     def keepalive_send(self):
@@ -86,6 +88,7 @@ class Mineserver(ServerProtocol):
                 self.close("Timed out: did not ping for 24 seconds.")
 
     def handle_chat(self, message):
+        message = message.encode('utf8')
         # TODO: add chat event to plugins
         self.send_chat("{0}: {1}".format(self.username, message))
 
@@ -105,6 +108,8 @@ class Mineserver(ServerProtocol):
 
     def packet_player_position(self, buff):
         x, y, z, on_ground = buff.unpack('ddd?')
+        # for entity_id,player in players.iteritems():
+        #player.send_spawn_player(entity_id,player.uuid,x,y,z,0,0)
 
     def packet_chat_message(self, buff):
         chat_message = buff.unpack_string()
@@ -112,6 +117,9 @@ class Mineserver(ServerProtocol):
             self.handle_command(chat_message[1:])  # Slice to shrink slash
         else:
             self.handle_chat(chat_message)
+
+    #def send_spawn_player(self,entity_id,player_uuid,x,y,z,yaw,pitch):
+
 
     def send_empty_chunk(self, x, z):  # args: chunk position ints (x, z)
         self.send_packet("chunk_data", self.buff_type.pack('ii?H', x, z, True, 0) + self.buff_type.pack_varint(0))
@@ -151,8 +159,7 @@ class Mineserver(ServerProtocol):
     def send_chat(self, message_bytes, position=0):  # args: (message[str], position[int])
         for entid, player in players.iteritems():
             player.send_packet('chat_message',
-                               self.buff_type.pack_chat(u(message_bytes)) +
-                               self.buff_type.pack('b', position)
+
                                )
 
     def send_chat_json(self, message_bytes, position=0):  # args: (message[dict], tp[int])
@@ -181,5 +188,5 @@ class Mineserver(ServerProtocol):
 
 
 class MineFactory(ServerFactory):
-    log_level = logging.DEBUG  # For testing
+    #log_level = logging.DEBUG  # For testing
     protocol = Mineserver

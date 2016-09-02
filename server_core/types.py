@@ -1,4 +1,14 @@
-class Position():
+from quarry.utils.buffer import Buffer
+
+
+class ExtendedBuffer(Buffer):
+    @classmethod
+    def pack_entity_metadata(cls, index, value_of_type_field, type_of_value):
+        out = b""
+        cls.pack("Bb")
+
+
+class Position:
     def __init__(self, x, y, z):
         self.x = x
         self.y = y
@@ -9,3 +19,4 @@ class Position():
 
     def get_xyz(self):
         return self.x, self.y, self.z
+

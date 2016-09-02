@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 from commands.cmds.BaseCommand import *
-from packet.send import chat, kick
-from server_core.chat import pushChat
 from twisted.internet import reactor
 from time import sleep
 

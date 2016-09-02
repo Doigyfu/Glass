@@ -1,5 +1,7 @@
+from packets.send import chat
+
 from commands.cmds.BaseCommand import *
-from packet.send import chat
+
 
 class cmd(BaseCommand):
     def process(self):

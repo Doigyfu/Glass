@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+from packets.send import chat_json
+
 from commands.cmds.BaseCommand import *
-from packet.send import chat_json
 from randomdata import help_json
+
 
 class cmd(BaseCommand):
     def process(self):
