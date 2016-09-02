@@ -19,20 +19,21 @@ from quarry.net.server import ServerFactory, ServerProtocol
 import randomdata
 from types import Position
 
+id_counter = 0
 
 class Mineserver(ServerProtocol):
     def packet_login_start(self, buff):
         ServerProtocol.packet_login_start(self, buff)
 
     def get_free_id(self):
-        idcounter += 1
-        return idcounter
-
+        global id_counter
+        id_counter += 1
+        return id_counter
     def player_joined(self):
         ServerProtocol.player_joined(self)
         self.ip = self.remote_addr.host
         self.spawn_position = Position(0, 66, 0)
-        self.entity_id = randomdata.getFreeId()
+        self.entity_id = self.get_free_id()
         self.default_gamemode = 1  # 0: Survival, 1: Creative, 2: Adventure, 3: Spectator. Bit 3 (0x8) is the hardcore flag.
         self.dimension = 0  # -1: Nether, 0:Overworld, 1:End
         self.difficulty = 0  # 0:peaceful,1:easy,2:normal,3:hard
