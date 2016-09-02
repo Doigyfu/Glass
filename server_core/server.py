@@ -34,14 +34,14 @@ class Mineserver(ServerProtocol):
         self.ip = self.remote_addr.host
         self.spawn_position = Position(0, 66, 0)
         self.entity_id = self.get_free_id()
-        # self.send_chat(str(self.entity_id))
+        self.send_chat(str(self.entity_id))
         self.default_gamemode = 1  # 0: Survival, 1: Creative, 2: Adventure, 3: Spectator. Bit 3 (0x8) is the hardcore flag.
         self.dimension = 0  # -1: Nether, 0:Overworld, 1:End
         self.difficulty = 0  # 0:peaceful,1:easy,2:normal,3:hard
         self.max_players = 25  # Was once used by the client to draw the player list, but now is ignored
         self.level_type = "default"  # default, flat, largeBiomes, amplified, default_1_1
         self.reduced_debug_info = False  # If true, a Notchian client shows reduced information on the debug screen.
-        #self.send_chat(str(self.uuid))
+        self.send_chat(str(self.uuid))
         players[self.entity_id] = self
         self.logger.info("UUID of player {0} is {1}".format(self.username, self.uuid))
         self.send_game(self.entity_id, self.default_gamemode, self.dimension, self.difficulty, self.max_players,
@@ -109,7 +109,7 @@ class Mineserver(ServerProtocol):
     def packet_player_position(self, buff):
         x, y, z, on_ground = buff.unpack('ddd?')
         # for entity_id,player in players.iteritems():
-        #player.send_spawn_player(entity_id,player.uuid,x,y,z,0,0)
+        # player.send_spawn_player(entity_id,player.uuid,x,y,z,0,0)
 
     def packet_chat_message(self, buff):
         chat_message = buff.unpack_string()
@@ -159,7 +159,8 @@ class Mineserver(ServerProtocol):
     def send_chat(self, message_bytes, position=0):  # args: (message[str], position[int])
         for entid, player in players.iteritems():
             player.send_packet('chat_message',
-
+                               self.buff_type.pack_chat(message_bytes) +
+                               self.buff_type.pack('b', position)
                                )
 
     def send_chat_json(self, message_bytes, position=0):  # args: (message[dict], tp[int])
