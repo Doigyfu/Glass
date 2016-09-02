@@ -7,7 +7,6 @@ from server_core.server import Mineserver
 class Pureserver(Mineserver):
     def player_join_event(self):
         self.logger.info("hmm, it works!")
-
     def player_leave_event(self):
         self.logger.info("he leaved :(")
 

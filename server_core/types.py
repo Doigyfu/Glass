@@ -6,3 +6,6 @@ class Position():
 
     def get_pos(self):
         return ((self.x & 0x3FFFFFF) << 38) | ((self.y & 0xFFF) << 26) | (self.z & 0x3FFFFFF)
+
+    def get_xyz(self):
+        return self.x, self.y, self.z

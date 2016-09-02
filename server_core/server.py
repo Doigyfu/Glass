@@ -41,7 +41,7 @@ class Mineserver(ServerProtocol):
                        False)
         self.send_spawn_pos(self.spawn_position)
         self.send_abilities(True, True, True, True, 0.2, 0.2)
-        self.send_position_and_look(0, 66, 0, 0, 0, False)
+        self.send_position_and_look(self.spawn_position, 0, 0, False)
         self.send_empty_chunk(0, 0)
         self.logger.info("{0} ({1}) logged in with entity id {2}".format(self.username, self.ip,
                                                                          self.entity_id) + " at ((0.0, 64.0, 0.0))")
@@ -80,9 +80,12 @@ class Mineserver(ServerProtocol):
                 self.close("Timed out: did not ping for 24 seconds.")
 
     def handle_chat(self, message):
-        self.send_chat(message)
+
+        # TODO: add chat event to plugins
+        self.send_chat("{0}: {1}".format(self.username, message))
 
     def handle_command(self, command_string):
+        #TODO: add command event to plugins
         self.logger.info("Player " + self.username + " issued server command: " + command_string)
         command_list = command_string.split(" ")  # Command list - e.g ['/login','123123123','123123123']
         command, arguments = command_list[0], command_string.split(" ")[1:]  # Get command and arguments
@@ -102,8 +105,9 @@ class Mineserver(ServerProtocol):
     def send_change_game_state(self, reason, state):  # http://wiki.vg/Protocol#Change_Game_State
         self.send_packet("change_game_state", self.buff_type.pack('Bf', reason, state))
 
-    def send_position_and_look(self, x, y, z, xr, yr,
+    def send_position_and_look(self, position, xr, yr,
                                on_ground):  # args: num (x, y, z, x rotation, y rotation, on-ground[bool])
+        x, y, z = position.get_xyz()
         self.send_packet("player_position_and_look",
                          self.buff_type.pack('dddffb', float(x), float(y), float(z), float(xr), float(yr), on_ground))
 
@@ -131,10 +135,12 @@ class Mineserver(ServerProtocol):
                          )
 
     def send_chat(self, message_bytes, position=0):  # args: (message[str], position[int])
-        self.send_packet('chat_message',
-                         self.buff_type.pack_chat(u(message_bytes)) +
-                         self.buff_type.pack('b', position)
-                         )
+        self.logger.info(players)
+        for entid, player in players.iteritems():
+            player.send_packet('chat_message',
+                               self.buff_type.pack_chat(u(message_bytes)) +
+                               self.buff_type.pack('b', position)
+                               )
 
     def send_chat_json(self, message_bytes, position=0):  # args: (message[dict], tp[int])
         self.send_packet('chat_message', self.buff_type.pack_json(message_bytes) + self.buff_type.pack('b', position))
