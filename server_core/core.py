@@ -26,5 +26,5 @@ def main():
 
 
 if __name__ == "__main__":
-    print("Mineserver (warn/CRIT)> You should NOT be invoking this directly! Use mineserver.py.")
+    print("Mineserver (warn/CRIT)> You should NOT be invoking this directly! Use puremine.py.")
     exit(1)

@@ -80,7 +80,12 @@ class Mineserver(ServerProtocol):
                 self.close("Timed out: did not ping for 24 seconds.")
 
     def handle_chat(self, message):
-
+        if message == "stop":
+            # TODO: Implement this as plugin
+            from twisted.internet import reactor
+            reactor.removeAll()
+            reactor.iterate()
+            reactor.stop()
         # TODO: add chat event to plugins
         self.send_chat("{0}: {1}".format(self.username, message))
 
@@ -91,6 +96,9 @@ class Mineserver(ServerProtocol):
         command, arguments = command_list[0], command_string.split(" ")[1:]  # Get command and arguments
 
         self.logger.info(command + str(arguments))
+
+    def packet_player_position(self, buff):
+        x, y, z, on_ground = buff.unpack('ddd?')
 
     def packet_chat_message(self, buff):
         chat_message = buff.unpack_string()
@@ -135,7 +143,6 @@ class Mineserver(ServerProtocol):
                          )
 
     def send_chat(self, message_bytes, position=0):  # args: (message[str], position[int])
-        self.logger.info(players)
         for entid, player in players.iteritems():
             player.send_packet('chat_message',
                                self.buff_type.pack_chat(u(message_bytes)) +
