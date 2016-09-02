@@ -6,20 +6,17 @@ from __future__ import print_function
 
 import codecs
 
-players = {}
-
 
 def u(x):
     return codecs.unicode_escape_decode(x)[0]
 
 
-from random import randint
+players = {}
+import random
 
 from quarry.net.server import ServerFactory, ServerProtocol
 
-import packet as packet
 import randomdata
-
 
 class Mineserver(ServerProtocol):
     def packet_login_start(self, buff):
@@ -32,59 +29,54 @@ class Mineserver(ServerProtocol):
     def player_joined(self):
         ServerProtocol.player_joined(self)
         self.ip = self.remote_addr.host
+        self.spawn_position = (0, 66, 0)
         self.entity_id = randomdata.getFreeId()
-        self.fquid = self.username + "[/" + self.ip + "](" + str(self.uuid) + ")"
-        # self.base_scba_split = list("PyMINESERVER")
-        # self.anim_i = 0
+        self.default_gamemode = 1  # 0: Survival, 1: Creative, 2: Adventure, 3: Spectator. Bit 3 (0x8) is the hardcore flag.
+        self.dimension = 0  # -1: Nether, 0:Overworld, 1:End
+        self.difficulty = 0  # 0:peaceful,1:easy,2:normal,3:hard
+        self.max_players = 20  # Was once used by the client to draw the player list, but now is ignored
+        self.level_type = "default"  # default, flat, largeBiomes, amplified, default_1_1
+        self.reduced_debug_info = False  # If true, a Notchian client shows reduced information on the debug screen.
         players[self.entity_id] = self
         self.logger.info("UUID of player {0} is {1}".format(self.username, self.uuid))
-        self.game(self.entity_id, 1, 0, 1, 50, "default", False)
-        self.spawn_pos(0, 66, 0)
-        self.abilities(True, True, True, True, 0.2, 0.2)
-        self.pos_look(0, 66, 0, 0, 0, False)
-        self.rain(True)
-        self.empty_chunk(0, 0)
-        # packet.block_change(self, 0, 64, 0, 1)
-
-        # if self.protocol_version == 47: packet.plist_head_foot(self, u"§6P§2yMINESERVER§r", u"§eEnjoy the Test§r# ")
-        # if self.protocol_version == 47: self.tasks.add_loop(1.0 / 20, self.anim_frame_scb)
+        self.send_game(self.entity_id, self.default_gamemode, self.dimension, self.difficulty, self.max_players,
+                       "default",
+                       False)
+        self.send_spawn_pos(0, 66, 0)
+        self.send_abilities(True, True, True, True, 0.2, 0.2)
+        self.send_position_and_look(0, 66, 0, 0, 0, False)
+        self.send_empty_chunk(0, 0)
         self.logger.info("{0} ({1}) logged in with entity id {2}".format(self.username, self.ip,
                                                                          self.entity_id) + " at ((0.0, 64.0, 0.0))")
         # Schedule 6-second sending of keep-alive packets.
         self.tasks.add_loop(6, self.keepalive_send)
-        # self.eobj_byid = eobj_byid
-        # pushChat(self, "\u00A7e" + self.username + " has joined the game\u00A7r", 1)
-
-        # Send welcome title and subtitle
-        # self.title(options.wtitle)
-        # self.subtitle(options.wst)
-        self.chat_json(randomdata.join_json(self), 1)
+        self.send_chat_json(randomdata.join_json(self), 1)
         try:
             self.player_join_event()
         except Exception as ex:
             print(ex.message)
             print("ERROR IN JOIN EVENT!")
+
     def player_left(self):
         try:
             self.player_leave_event()
         except Exception as ex:
             print(ex.message)
             print("ERROR IN LEAVE EVENT!")
+        players[self.entity_id] = None
         ServerProtocol.player_left(self)
-        del players[self.entity_id]
-        # pushChatCall(self, "\u00A7e" + self.username + " has left the game\u00A7r", 1, self.destroy)
 
     def keepalive_send(self):
-        self.last_keepalive = random_digits(randint(4, 9))
-        packet.keep_alive(self, self.last_keepalive)
+        self.last_keepalive = random.randint(6969696, 96969696)  # Some magic numbers here :)
+        self.send_keep_alive(self.last_keepalive)
 
     def packet_keep_alive(self, buff):
         if buff.unpack_varint() == self.last_keepalive:
             pass
         else:
-            if self.keepalive_miss < 4:
-                self.keepalive_miss += 1
-            else:
+            if self.keepalive_miss < 4:  # Check for keepalive count
+                self.keepalive_miss += 1  # Increment by 1
+            else:  # If keepalive miss more than 4, the player probably lagged out, so let's kick him!
                 buff.discard()
                 self.logger.info(
                     "Kicking player " + self.username + " for not responding to keepalives for 24 seconds.")
@@ -94,113 +86,87 @@ class Mineserver(ServerProtocol):
         for entity_id, player_object in players.iteritems():
             self.chat(message)
 
-    # import commands.cmds as cmds
-
     def handle_command(self, command_string):
         self.logger.info("Player " + self.username + " issued server command: " + command_string)
         command_list = command_string.split(" ")  # Command list - e.g ['/login','123123123','123123123']
         command, arguments = command_list[0], command_string.split(" ")[1:]  # Get command and arguments
-        print(command, arguments)
-        cmdobj = {
-            "command": command,
-            "args_raw": arguments,
-            # "scope": self,
-            "chat_raw": command_string
-        }
-        # if command not in cmds.baseList: cmds.InvalidCommand.cmd.begin(cmds.InvalidCommand.cmd(), cmdobj)
-        # else: cmds.baseList[command].begin(cmds.baseList[command](), cmdobj)
+
+        self.logger.info(command + str(arguments))
 
     def packet_chat_message(self, buff):
         chat_message = buff.unpack_string()
         if chat_message[0] == '/':
             self.handle_command(chat_message)
         else:
-            self.global_chat(chat_message)
+            self.handle_chat(chat_message)
 
-    # print(handle_command("/login 123123123 123123123"))
-
-    def destroy(self):
-        players[self.entity_id] = None
-
-    def anim_frame_scb(self):
-        self.sstmp = self.base_scba_split
-        if self.anim_i >= len(self.sstmp): self.anim_i = 0
-        self.sstmp[self.anim_i] = u"§6" + self.sstmp[self.anim_i] + u"§2"
-        packet.plist_head_foot(self, u"§2" + self.sstmp[self.anim_i] + u"§r", u"§eEnjoy the Test§r")
-        self.anim_i += 1
-
-    def empty_chunk(self, x, z):  # args: chunk position ints (x, z)
+    def send_empty_chunk(self, x, z):  # args: chunk position ints (x, z)
         self.send_packet("chunk_data", self.buff_type.pack('ii?H', x, z, True, 0) + self.buff_type.pack_varint(0))
 
-    def rain(self, state):  # args: bool for rain
-        if state:
-            self.send_packet("change_game_state", self.buff_type.pack('Bf', 2, 0.0))
-        else:
-            self.send_packet("change_game_state", self.buff_type.pack('Bf', 1, 0.0))
+    def send_change_game_state(self, reason, state):  # http://wiki.vg/Protocol#Change_Game_State
+        self.send_packet("change_game_state", self.buff_type.pack('Bf', reason, state))
 
-    def pos_look(self, x, y, z, xr, yr, og):  # args: num (x, y, z, x rotation, y rotation, on-ground[bool])
+    def send_position_and_look(self, x, y, z, xr, yr,
+                               on_ground):  # args: num (x, y, z, x rotation, y rotation, on-ground[bool])
         self.send_packet("player_position_and_look",
-                         self.buff_type.pack('dddffb', float(x), float(y), float(z), float(xr), float(yr), og))
+                         self.buff_type.pack('dddffb', float(x), float(y), float(z), float(xr), float(yr), on_ground))
 
-    def abilities(self, flying, fly, god, creative, fly_speed,
-                  walk_speed):  # args: bool (if flying, if can fly, if no damage, if creative, (num) fly speed, walk speed)
-        atmp1 = 0
-        if flying: atmp1 = atmp1 | 0x02
-        if fly: atmp1 = atmp1 | 0x04
-        if god: atmp1 = atmp1 | 0x08
-        if creative: atmp1 = atmp1 | 0x01
-        self.send_packet("player_abilities", self.buff_type.pack('bff', atmp1, float(fly_speed), float(walk_speed)))
+    def send_abilities(self, flying, fly, god, creative, fly_speed,
+                       walk_speed):  # args: bool (if flying, if can fly, if no damage, if creative, (num) fly speed, walk speed)
+        bitmask = 0
+        if flying: bitmask = bitmask | 0x02
+        if fly: bitmask = bitmask | 0x04
+        if god: bitmask = bitmask | 0x08
+        if creative: bitmask = bitmask | 0x01
+        self.send_packet("player_abilities", self.buff_type.pack('bff', bitmask, float(fly_speed), float(walk_speed)))
 
-    def spawn_pos(self, x, y, z):  # args: (x, y, z) int
+    def send_spawn_pos(self, *position):  # args: (x, y, z) int
+        x, y, z = position
         self.send_packet("spawn_position",
-                         self.buff_type.pack('q', ((x & 0x3FFFFFF) << 38) | ((y & 0xFFF) << 26) | (z & 0x3FFFFFF)))
+                         self.buff_type.pack('q',
+                                             ((x & 0x3FFFFFF) << 38) | ((y & 0xFFF) << 26) | (z & 0x3FFFFFF)
+                                             )
+                         )
 
-    def game(self, entity_id, gamemode, dimension, difficulty, max_players, type,
-             dbg):  # args: int (entity id, gamemode, dimension, difficulty, max players, level type[str], reduced f3 info[bool])
-        self.send_packet("join_game", self.buff_type.pack('iBbBB', entity_id, gamemode, dimension, difficulty,
-                                                          max_players) + self.buff_type.pack_string(
-            type) + self.buff_type.pack('?', dbg))
+    def send_game(self, entity_id, gamemode, dimension, difficulty, max_players, type,
+                  dbg):  # args: int (entity id, gamemode, dimension, difficulty, max players, level type[str], reduced f3 info[bool])
+        self.send_packet("join_game",
+                         self.buff_type.pack('iBbBB',
+                                             entity_id, gamemode, dimension, difficulty,
+                                             max_players) + self.buff_type.pack_string(type) +
+                         self.buff_type.pack('?', dbg)
+                         )
 
-    def chat(self, message_bytes, position=0):  # args: (message[str], tp[int])
+    def send_chat(self, message_bytes, position=0):  # args: (message[str], position[int])
         self.send_packet('chat_message',
-                         self.buff_type.pack_chat(u(message_bytes)) + self.buff_type.pack('b',
-                                                                                          position)) if not self == None else u(
-            "")
+                         self.buff_type.pack_chat(u(message_bytes)) +
+                         self.buff_type.pack('b', position)
+                         )
 
-    def chat_json(self, message_bytes, position=0):  # args: (message[dict], tp[int])
+    def send_chat_json(self, message_bytes, position=0):  # args: (message[dict], tp[int])
         self.send_packet('chat_message', self.buff_type.pack_json(message_bytes) + self.buff_type.pack('b', position))
 
-    def title(self, msgb):
-        self.send_packet('title', self.buff_type.pack_varint(0) + self.buff_type.pack_chat(msgb))
+    def send_title(self, message, json=False, position=0):  # message, json msg, position: 0 for title, 1 for subtitle
+        if json:
+            self.send_packet('title', self.buff_type.pack_varint(position) + self.buff_type.pack_json(message))
+        else:
+            self.send_packet('title', self.buff_type.pack_varint(position) + self.buff_type.pack_chat(message))
 
-    def subtitle(self, msgb):
-        self.send_packet('title', self.buff_type.pack_varint(1) + self.buff_type.pack_chat(msgb))
+    def send_keep_alive(self, keepalive_id):  # args: (varint data[int])
+        self.send_packet("keep_alive", self.buff_type.pack_varint(keepalive_id))
 
-    def title_json(self, msgb):
-        self.send_packet('title', self.buff_type.pack_varint(0) + self.buff_type.pack_json(msgb))
+    def send_kick(self, reason):  # args: (reason[str])
+        self.close(reason)
 
-    def subtitle_json(self, msgb):
-        self.send_packet('title', self.buff_type.pack_varint(1) + self.buff_type.pack_json(msgb))
+    def send_plist_head_foot(self, header, footer):  # args: str (header, footer)
+        self.send_packet("player_list_header_footer",
+                         self.buff_type.pack_chat(header) +
+                         self.buff_type.pack_chat(footer))
 
-    def keep_alive(self, vienc):  # args: (varint data[int])
-        self.send_packet("keep_alive", self.buff_type.pack_varint(vienc))
-
-    def kick(self, rson):  # args: (reason[str])
-        self.close(rson)
-
-    def plist_head_foot(self, msga, msgb):  # args: str (header, footer)
-        self.send_packet("player_list_header_footer", self.buff_type.pack_chat(msga) + self.buff_type.pack_chat(msgb))
-
-    def block_change(self, x, y, z, id):  # args: int (x, y, z, block id)
+    def send_block_change(self, x, y, z, block_id):  # args: int (x, y, z, block id)
         self.send_packet("block_change", self.buff_type.pack('q', ((x & 0x3FFFFFF) << 38) | ((y & 0xFFF) << 26) | (
-            z & 0x3FFFFFF)) + self.buff_type.pack_varint((id << 4) | 0))
+            z & 0x3FFFFFF)) + self.buff_type.pack_varint((block_id << 4) | 0))
 
 
 class MineFactory(ServerFactory):
     protocol = Mineserver
-
-
-def random_digits(n):
-    range_start = 10 ** (n - 1)
-    range_end = (10 ** n) - 1
-    return randint(range_start, range_end)
