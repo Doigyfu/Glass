@@ -15,21 +15,18 @@ players = {}
 import random
 
 from quarry.net.server import ServerFactory, ServerProtocol
-
 import randomdata
+from types import Position
+
 
 class Mineserver(ServerProtocol):
     def packet_login_start(self, buff):
-        # if not options.down:
         ServerProtocol.packet_login_start(self, buff)
-        # else:
-        #   buff.discard()
-        #   self.close(options.downmsg)
 
     def player_joined(self):
         ServerProtocol.player_joined(self)
         self.ip = self.remote_addr.host
-        self.spawn_position = (0, 66, 0)
+        self.spawn_position = Position(0, 66, 0)
         self.entity_id = randomdata.getFreeId()
         self.default_gamemode = 1  # 0: Survival, 1: Creative, 2: Adventure, 3: Spectator. Bit 3 (0x8) is the hardcore flag.
         self.dimension = 0  # -1: Nether, 0:Overworld, 1:End
@@ -42,7 +39,7 @@ class Mineserver(ServerProtocol):
         self.send_game(self.entity_id, self.default_gamemode, self.dimension, self.difficulty, self.max_players,
                        "default",
                        False)
-        self.send_spawn_pos(0, 66, 0)
+        self.send_spawn_pos(self.spawn_position)
         self.send_abilities(True, True, True, True, 0.2, 0.2)
         self.send_position_and_look(0, 66, 0, 0, 0, False)
         self.send_empty_chunk(0, 0)
@@ -82,9 +79,8 @@ class Mineserver(ServerProtocol):
                     "Kicking player " + self.username + " for not responding to keepalives for 24 seconds.")
                 self.close("Timed out: did not ping for 24 seconds.")
 
-    def global_chat(self, message):
-        for entity_id, player_object in players.iteritems():
-            self.chat(message)
+    def handle_chat(self, message):
+        self.send_chat(message)
 
     def handle_command(self, command_string):
         self.logger.info("Player " + self.username + " issued server command: " + command_string)
@@ -120,12 +116,9 @@ class Mineserver(ServerProtocol):
         if creative: bitmask = bitmask | 0x01
         self.send_packet("player_abilities", self.buff_type.pack('bff', bitmask, float(fly_speed), float(walk_speed)))
 
-    def send_spawn_pos(self, *position):  # args: (x, y, z) int
-        x, y, z = position
+    def send_spawn_pos(self, position):  # args: (x, y, z) int
         self.send_packet("spawn_position",
-                         self.buff_type.pack('q',
-                                             ((x & 0x3FFFFFF) << 38) | ((y & 0xFFF) << 26) | (z & 0x3FFFFFF)
-                                             )
+                         self.buff_type.pack('q', position.get_pos())  # get_pos() is long long type
                          )
 
     def send_game(self, entity_id, gamemode, dimension, difficulty, max_players, type,
