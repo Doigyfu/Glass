@@ -20,6 +20,7 @@ from types import Position
 
 id_counter = 0
 
+
 class Mineserver(ServerProtocol):
     def packet_login_start(self, buff):
         ServerProtocol.packet_login_start(self, buff)
@@ -54,7 +55,7 @@ class Mineserver(ServerProtocol):
                                                                          self.entity_id) + " at ((0.0, 64.0, 0.0))")
         # Schedule 6-second sending of keep-alive packets.
         self.tasks.add_loop(6, self.keepalive_send)
-        self.send_chat_json(randomdata.join_json(self), 1)  #Print welcome message
+        self.send_chat_json(randomdata.join_json(self), 1)  # Print welcome message
         try:
             self.player_join_event()
         except Exception as ex:
@@ -88,8 +89,10 @@ class Mineserver(ServerProtocol):
 
     def handle_chat(self, message):
         message = message.encode('utf8')
+        message = "<{0}> {1}".format(self.username, message)
         # TODO: add chat event to plugins
-        self.send_chat("{0}: {1}".format(self.username, message))
+        self.logger.info(message)  # Write chat message in server console
+        self.send_chat(message)  # send chat message to all players on server
 
     def handle_command(self, command_string):
 
@@ -106,7 +109,7 @@ class Mineserver(ServerProtocol):
         self.logger.info(command + str(arguments))
 
     def packet_player_position(self, buff):
-        x, y, z, on_ground = buff.unpack('ddd?')
+        x, y, z, on_ground = buff.unpack('ddd?')  # X,y and z - coordinates, on ground - boolean
         # for entity_id,player in players.iteritems():
         # player.send_spawn_player(entity_id,player.uuid,x,y,z,0,0)
 
@@ -117,7 +120,7 @@ class Mineserver(ServerProtocol):
         else:
             self.handle_chat(chat_message)
 
-    #def send_spawn_player(self,entity_id,player_uuid,x,y,z,yaw,pitch):
+    # def send_spawn_player(self,entity_id,player_uuid,x,y,z,yaw,pitch):
 
 
     def send_empty_chunk(self, x, z):  # args: chunk position ints (x, z)
@@ -147,7 +150,7 @@ class Mineserver(ServerProtocol):
                          )
 
     def send_game(self, entity_id, gamemode, dimension, difficulty, max_players, type,
-                  dbg):  # args: int (entity id, gamemode, dimension, difficulty, max players, level type[str], reduced f3 info[bool])
+                  dbg):  # args: int (entity id, gamemode, dimension, difficulty, max players, level type[str], reduced debug info[bool])
         self.send_packet("join_game",
                          self.buff_type.pack('iBbBB',
                                              entity_id, gamemode, dimension, difficulty,
@@ -188,5 +191,5 @@ class Mineserver(ServerProtocol):
 
 
 class MineFactory(ServerFactory):
-    #log_level = logging.DEBUG  # For testing
+    # log_level = logging.DEBUG  # For testing
     protocol = Mineserver
