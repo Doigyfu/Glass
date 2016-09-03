@@ -18,7 +18,7 @@ def u(x):
 players = {}
 ###PROTOCOL AND SERVER STUFF
 from quarry.net.server import ServerFactory, ServerProtocol
-import randomdata
+import serverdata
 from types import Position
 
 id_counter = 0  # We need to have unique ID for all entities in a server
@@ -66,7 +66,7 @@ class Mineserver(ServerProtocol):
                                                                          self.entity_id) + " at ((0.0, 64.0, 0.0))")
         # Schedule 6-second sending of keep-alive packets.
         self.tasks.add_loop(1, self.keepalive_send)
-        self.send_chat_json(randomdata.join_json(self), 1)  # Print welcome message
+        self.send_chat_json(serverdata.join_json(self), 1)  # Print welcome message
         self.plugin_event("player_join_event")
 
     def player_left(self):
