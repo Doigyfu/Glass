@@ -1,10 +1,13 @@
+# You must always import this
 from yapsy.IPlugin import IPlugin
 
 
+# And you must ALWAYS add IPlugin as base class to your's
 class Plugin(IPlugin):
+    #If you don't need to set your own long-living variables - you don't need __init__
     def __init__(self):
         super(Plugin, self).__init__()  # Call super's method in order to initialize plugin...
-        # Then you can set your own stuf...
+        # Then you can set your own stuff...
         self.hello_message = "Hello!!!"
         self.x = 0
         self.y = 0
