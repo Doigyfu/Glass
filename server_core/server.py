@@ -34,15 +34,14 @@ class Mineserver(ServerProtocol):
         self.ip = self.remote_addr.host
         self.spawn_position = Position(0, 66, 0)
         self.entity_id = self.get_free_id()
-        self.send_chat(str(self.entity_id))
         self.default_gamemode = 1  # 0: Survival, 1: Creative, 2: Adventure, 3: Spectator. Bit 3 (0x8) is the hardcore flag.
         self.dimension = 0  # -1: Nether, 0:Overworld, 1:End
         self.difficulty = 0  # 0:peaceful,1:easy,2:normal,3:hard
         self.max_players = 25  # Was once used by the client to draw the player list, but now is ignored
         self.level_type = "default"  # default, flat, largeBiomes, amplified, default_1_1
         self.reduced_debug_info = False  # If true, a Notchian client shows reduced information on the debug screen.
-        self.send_chat(str(self.uuid))
-        players[self.entity_id] = self
+        players[
+            self.entity_id] = self  # add player object to dict eid:player , so we can iterate over ALL players on the server
         self.logger.info("UUID of player {0} is {1}".format(self.username, self.uuid))
         self.send_game(self.entity_id, self.default_gamemode, self.dimension, self.difficulty, self.max_players,
                        "default",
@@ -55,7 +54,7 @@ class Mineserver(ServerProtocol):
                                                                          self.entity_id) + " at ((0.0, 64.0, 0.0))")
         # Schedule 6-second sending of keep-alive packets.
         self.tasks.add_loop(6, self.keepalive_send)
-        self.send_chat_json(randomdata.join_json(self), 1)
+        self.send_chat_json(randomdata.join_json(self), 1)  #Print welcome message
         try:
             self.player_join_event()
         except Exception as ex:

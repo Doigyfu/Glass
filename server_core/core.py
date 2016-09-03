@@ -11,17 +11,18 @@ class Pureserver(Mineserver):
 
 class PureFactory(MineFactory):
     protocol = Pureserver
-    max_players = 100
-    online_mode = False
 
 
-def main():
+def main(properties_dict):
     factory = PureFactory()
-    factory.motd = "Pureserver test"
-    factory.online_mode = False
-
+    factory.motd = properties_dict.get("motd", "Pureserver test")
+    factory.online_mode = properties_dict.get("online-mode", False)
+    factory.max_players = properties_dict.get("max-players", 20)
+    factory.compression_threshold = properties_dict.get("network-compression-threshold", 256)
+    ip = properties_dict.get("server-ip", "127.0.0.1")
+    port = properties_dict.get("server-port", 25565)
     # Listen
-    factory.listen('127.0.0.1', 25565)
+    factory.listen(ip, port)
     factory.run()
 
 
