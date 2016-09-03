@@ -12,7 +12,6 @@ class Pureserver(Mineserver):
 class PureFactory(MineFactory):
     protocol = Pureserver
 
-
 def main(properties_dict):
     factory = PureFactory()
     factory.motd = properties_dict.get("motd", "Pureserver test")
@@ -21,6 +20,15 @@ def main(properties_dict):
     factory.compression_threshold = properties_dict.get("network-compression-threshold", 256)
     ip = properties_dict.get("server-ip", "127.0.0.1")
     port = properties_dict.get("server-port", 25565)
+    ###INIT PLUGIN SYSTEM
+    factory.plugins = []
+    from yapsy.PluginManager import PluginManager
+    pm = PluginManager()
+    pm.setPluginPlaces(["./plugins"])
+    pm.collectPlugins()
+    for pluginInfo in pm.getAllPlugins():
+        factory.plugins.append(pluginInfo.plugin_object)
+    ###PLUGIN CLASSES ARE STORED IN PLUGINS LIST NOW
     # Listen
     factory.listen(ip, port)
     factory.run()

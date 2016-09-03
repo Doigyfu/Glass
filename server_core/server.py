@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-
+###BUILD-IN STUFF
 from __future__ import print_function
 
 import codecs
+import random
+
+
+###TWISTED STUFF###
 
 
 def u(x):
@@ -12,23 +16,30 @@ def u(x):
 
 
 players = {}
-import random
-
+###PROTOCOL AND SERVER STUFF
 from quarry.net.server import ServerFactory, ServerProtocol
 import randomdata
 from types import Position
 
-id_counter = 0
+id_counter = 0  # We need to have unique ID for all entities in a server
 
 
 class Mineserver(ServerProtocol):
     def packet_login_start(self, buff):
         ServerProtocol.packet_login_start(self, buff)
 
-    def get_free_id(self):
+    def get_free_id(self):  # Get free ID for entity_id
         global id_counter
         id_counter += 1
         return id_counter
+
+    # Plugin event method
+    def plugin_event(self, event_name, *args, **kwargs):
+        for plugin in self.factory.plugins:
+            try:
+                getattr(plugin, event_name)(self, *args, **kwargs)()  # Try to call plugin method with arguments
+            except:
+                continue  # If method doesn't exist or there's an error in arguments count - continue
 
     def player_joined(self):
         ServerProtocol.player_joined(self)
@@ -54,20 +65,12 @@ class Mineserver(ServerProtocol):
         self.logger.info("{0} ({1}) logged in with entity id {2}".format(self.username, self.ip,
                                                                          self.entity_id) + " at ((0.0, 64.0, 0.0))")
         # Schedule 6-second sending of keep-alive packets.
-        self.tasks.add_loop(6, self.keepalive_send)
+        self.tasks.add_loop(1, self.keepalive_send)
         self.send_chat_json(randomdata.join_json(self), 1)  # Print welcome message
-        try:
-            self.player_join_event()
-        except Exception as ex:
-            print(ex.message)
-            print("ERROR IN JOIN EVENT!")
+        self.plugin_event("player_join_event")
 
     def player_left(self):
-        try:
-            self.player_leave_event()
-        except Exception as ex:
-            print(ex.message)
-            print("ERROR IN LEAVE EVENT!")
+        self.plugin_event("player_leave_event")
         del players[self.entity_id]
         ServerProtocol.player_left(self)
 
@@ -79,7 +82,7 @@ class Mineserver(ServerProtocol):
         if buff.unpack_varint() == self.last_keepalive:
             pass
         else:
-            if self.keepalive_miss < 4:  # Check for keepalive count
+            if self.keepalive_miss < 2:  # Check for keepalive count
                 self.keepalive_miss += 1  # Increment by 1
             else:  # If keepalive miss more than 4, the player probably lagged out, so let's kick him!
                 buff.discard()
@@ -90,26 +93,19 @@ class Mineserver(ServerProtocol):
     def handle_chat(self, message):
         message = message.encode('utf8')
         message = "<{0}> {1}".format(self.username, message)
-        # TODO: add chat event to plugins
+        self.plugin_event("player_chat_event", message)
         self.logger.info(message)  # Write chat message in server console
         self.send_chat(message)  # send chat message to all players on server
 
     def handle_command(self, command_string):
-
-        # TODO: add command event to plugins
         self.logger.info("Player " + self.username + " issued server command: " + command_string)
         command_list = command_string.split(" ")  # Command list - e.g ['/login','123123123','123123123']
         command, arguments = command_list[0], command_string.split(" ")[1:]  # Get command and arguments
-        # TODO: Implement this as plugin
-        if command == "stop":
-            from twisted.internet import reactor
-            reactor.removeAll()
-            reactor.iterate()
-            reactor.stop()
-        self.logger.info(command + str(arguments))
+        self.plugin_event("player_command_event", command, arguments)
 
     def packet_player_position(self, buff):
-        x, y, z, on_ground = buff.unpack('ddd?')  # X,y and z - coordinates, on ground - boolean
+        x, y, z, on_ground = buff.unpack('ddd?')  # X Y Z - coordinates, on ground - boolean
+        self.plugin_event("player_move_event", x, y, z, on_ground)
         # for entity_id,player in players.iteritems():
         # player.send_spawn_player(entity_id,player.uuid,x,y,z,0,0)
 
@@ -176,9 +172,6 @@ class Mineserver(ServerProtocol):
 
     def send_keep_alive(self, keepalive_id):  # args: (varint data[int])
         self.send_packet("keep_alive", self.buff_type.pack_varint(keepalive_id))
-
-    def send_kick(self, reason):  # args: (reason[str])
-        self.close(reason)  # Close connection
 
     def send_plist_head_foot(self, header, footer):  # args: str (header, footer)
         self.send_packet("player_list_header_footer",
