@@ -49,7 +49,6 @@ class Mineserver(ServerProtocol):
         self.default_gamemode = 1  # 0: Survival, 1: Creative, 2: Adventure, 3: Spectator. Bit 3 (0x8) is the hardcore flag.
         self.dimension = 0  # -1: Nether, 0:Overworld, 1:End
         self.difficulty = 0  # 0:peaceful,1:easy,2:normal,3:hard
-        self.max_players = 25  # Was once used by the client to draw the player list, but now is ignored
         self.level_type = "default"  # default, flat, largeBiomes, amplified, default_1_1
         self.reduced_debug_info = False  # If true, a Notchian client shows reduced information on the debug screen.
         players[
@@ -154,9 +153,10 @@ class Mineserver(ServerProtocol):
                          self.buff_type.pack('?', dbg)
                          )
 
-    def send_chat_all(self, message_bytes, position=0):
+    def send_chat_all(self, message_bytes, position=0):  # Send chat message for all players
         for eid, player in players.iteritems():
             self.send_chat(message_bytes, position)
+
     def send_chat(self, message_bytes, position=0):  # args: (message[str], position[int])
         self.send_packet('chat_message',
                          self.buff_type.pack_chat(message_bytes) +
@@ -186,5 +186,4 @@ class Mineserver(ServerProtocol):
 
 
 class MineFactory(ServerFactory):
-    pass
-    # log_level = logging.DEBUG  # For testing
+    protocol = Mineserver

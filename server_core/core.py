@@ -23,7 +23,6 @@ def main(properties_dict):
     factory.compression_threshold = properties_dict.get("network-compression-threshold", 256)
     ip = properties_dict.get("server-ip", "127.0.0.1")
     port = properties_dict.get("server-port", 25565)
-    #    factory.
     ###INIT PLUGIN SYSTEM
     factory.plugins = []
     from yapsy.PluginManager import PluginManager, PluginFileLocator
@@ -43,7 +42,6 @@ def main(properties_dict):
         plugin = plugin.plugin_object
         factory.plugins.append(plugin)
     ###PLUGIN INFOS ARE STORED IN PLUGINS LIST NOW
-    # Listen
     factory.listen(ip, port)
     factory.run()
 
