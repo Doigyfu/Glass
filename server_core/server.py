@@ -38,8 +38,10 @@ class Mineserver(ServerProtocol):
         for plugin in self.factory.plugins:
             try:
                 getattr(plugin, event_name)(self, *args, **kwargs)()  # Try to call plugin method with arguments
-            except:
-                continue  # If method doesn't exist or there's an error in arguments count - continue
+            except TypeError:
+                continue  # If method doesn't exist - continue
+            except Exception as ex:
+                print(ex.message)  # Catch exceptions in plugin
 
     def player_joined(self):
         ServerProtocol.player_joined(self)
@@ -54,9 +56,7 @@ class Mineserver(ServerProtocol):
         players[
             self.entity_id] = self  # add player object to dict eid:player , so we can iterate over ALL players on the server
         self.logger.info("UUID of player {0} is {1}".format(self.username, self.uuid))
-        self.send_game(self.entity_id, self.default_gamemode, self.dimension, self.difficulty, self.max_players,
-                       "default",
-                       False)
+        self.send_game(self.entity_id, self.default_gamemode, self.dimension, self.difficulty, "default", False)
         self.send_spawn_pos(self.spawn_position)
         self.send_abilities(True, True, True, True, 0.2, 0.2)
         self.send_position_and_look(self.spawn_position, 0, 0, False)
@@ -144,18 +144,22 @@ class Mineserver(ServerProtocol):
                          self.buff_type.pack('q', position.get_pos())  # get_pos() is long long type
                          )
 
-    def send_game(self, entity_id, gamemode, dimension, difficulty, max_players, type,
+    def send_game(self, entity_id, gamemode, dimension, difficulty, level_type,
                   dbg):  # args: int (entity id, gamemode, dimension, difficulty, max players, level type[str], reduced debug info[bool])
+        max_players = 25  # This is no longer used in Minecraft protocol
         self.send_packet("join_game",
                          self.buff_type.pack('iBbBB',
                                              entity_id, gamemode, dimension, difficulty,
-                                             max_players) + self.buff_type.pack_string(type) +
+                                             max_players) + self.buff_type.pack_string(level_type) +
                          self.buff_type.pack('?', dbg)
                          )
 
     def send_chat_all(self, message_bytes, position=0):  # Send chat message for all players
-        for eid, player in players.iteritems():
-            self.send_chat(message_bytes, position)
+        for player in players.values():
+            player.send_packet('chat_message',
+                               player.buff_type.pack_chat(message_bytes) +
+                               player.buff_type.pack('b', position)
+                               )
 
     def send_chat(self, message_bytes, position=0):  # args: (message[str], position[int])
         self.send_packet('chat_message',

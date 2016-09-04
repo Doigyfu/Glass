@@ -33,7 +33,6 @@ try:
                         continue
                     else:
                         properties[key] = value
-except:
+except IOError:
     print("Config file don't found, using defaults...")
-
 main(properties)
