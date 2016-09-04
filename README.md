@@ -17,7 +17,7 @@ in plugins folder, and then, create two files:
 
 anynameofscript.py
 
-anynameofscript.yapsy-plugin
+anynameofscript.info
 
 You can check the example plugin to see what you need to put in this files :)
 
