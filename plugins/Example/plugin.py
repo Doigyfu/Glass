@@ -1,21 +1,14 @@
-# You must always import this
-from yapsy.IPlugin import IPlugin
+# You must always import base plugin like this, otherwise it won't work
+
+import server_core.base_plugin as base
 
 
-# And you must ALWAYS add IPlugin as base class to your's
-class Plugin(IPlugin):
-    # If you don't need to set your global variables(across all players) - you don't need __init__
+# You must inherit from base plugin like that
+class Plugin(base.BasePlugin):
+    # You can init your global variables here
     def __init__(self):
-        super(Plugin, self).__init__()  # Call super's method in order to initialize plugin...
-        # Then you can set your own global variables (for all players)...
-
-    # This is being called when plugin initializes..
-    def activate(self):
-        pass
-
-    # This is being called when plugin shuts down..
-    def deactivate(self):
-        pass
+        super(Plugin, self).__init__()
+        self.test = 1
 
     # Player argument must be ALWAYS present - it's player object
     # You can init player variables here (or in any another event)
@@ -23,24 +16,24 @@ class Plugin(IPlugin):
         player.x = 0
         player.y = 0
         player.z = 0
-        print(player.username)
+        # The default logger is <name of plugin> plugin | LOG_LEVEL | message
+        self.logger.info(player.username)
 
     def player_leave_event(self, player):
-        print("goodbye from plug-in :(")
-        print(player.username)
+        self.logger.info("goodbye from plug-in :(")
 
     # You need to add arguments to some event, this arguments will be in docs
-    #So we check there if player movevent on X is bigger than 5 units
     def player_move_event(self, player, x, y, z, on_ground):
-        if (player.x - x) > 3:
-            print("X delta is bigger than FIVE!")
         # This variables are not equal for different players :)
+        # If player moved on more than 2 x let's write in chat
+        if abs(player.x - x) > 5:
+            self.logger.info("X delta is bigger than five")
         player.x = x
         player.y = y
         player.z = z
 
     def player_chat_event(self, player, message):
-        print("player chat from plug-in " + str(message))
+        self.logger.info("player chat from plug-in " + str(message))
 
     def player_command_event(self, player, command, arguments):
-        print("player command from plug-in " + str(arguments))
+        self.logger.info("player command from plug-in " + str(arguments))

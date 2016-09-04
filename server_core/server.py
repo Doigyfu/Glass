@@ -29,7 +29,7 @@ class Mineserver(ServerProtocol):
         ServerProtocol.packet_login_start(self, buff)
 
     def get_free_id(self):  # Get free ID for entity_id
-        global id_counter
+        global id_counter  # Because TWISTED isn't threaded, we can safely call a global variable
         id_counter += 1
         return id_counter
 
@@ -154,12 +154,14 @@ class Mineserver(ServerProtocol):
                          self.buff_type.pack('?', dbg)
                          )
 
+    def send_chat_all(self, message_bytes, position=0):
+        for eid, player in players.iteritems():
+            self.send_chat(message_bytes, position)
     def send_chat(self, message_bytes, position=0):  # args: (message[str], position[int])
-        for entid, player in players.iteritems():
-            player.send_packet('chat_message',
-                               self.buff_type.pack_chat(message_bytes) +
-                               self.buff_type.pack('b', position)
-                               )
+        self.send_packet('chat_message',
+                         self.buff_type.pack_chat(message_bytes) +
+                         self.buff_type.pack('b', position)
+                         )
 
     def send_chat_json(self, message_bytes, position=0):  # args: (message[dict], tp[int])
         self.send_packet('chat_message', self.buff_type.pack_json(message_bytes) + self.buff_type.pack('b', position))
@@ -184,5 +186,5 @@ class Mineserver(ServerProtocol):
 
 
 class MineFactory(ServerFactory):
+    pass
     # log_level = logging.DEBUG  # For testing
-    protocol = Mineserver
