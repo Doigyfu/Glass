@@ -5,15 +5,17 @@
 from __future__ import print_function
 
 import random
-import traceback
 
 players = {}
+
 ###PROTOCOL AND SERVER STUFF
 from quarry.net.server import ServerFactory, ServerProtocol
 import serverdata
-from types import Position
+from .types import Position
 
 id_counter = 0  # We need to have unique ID for all entities in a server
+
+__all__ = ["MineFactory", "Mineserver"]
 
 
 class Mineserver(ServerProtocol):
@@ -27,13 +29,8 @@ class Mineserver(ServerProtocol):
 
     # Plugin event method
     def plugin_event(self, event_name, *args, **kwargs):
-        for event, handlers in self.factory.event_handlers.iteritems():
-            if event_name == event:
-                for event_handler in handlers:
-                    try:
-                        event_handler(self, *args, **kwargs)  # Call event handler
-                    except:  # If plugin method raised an exception
-                        traceback.print_exc()  # Print exception
+        self.factory.plugin_system.call_event(event_name, self, *args, **kwargs)
+
     def player_joined(self):
         ServerProtocol.player_joined(self)
         self.ip = self.remote_addr.host
@@ -57,10 +54,10 @@ class Mineserver(ServerProtocol):
         # Schedule 6-second sending of keep-alive packets.
         self.tasks.add_loop(1, self.keepalive_send)
         self.send_chat_json(serverdata.join_json(self), 1)  # Print welcome message
-        self.plugin_event("player_join_event")
+        self.plugin_event("player_join")
 
     def player_left(self):
-        self.plugin_event("player_leave_event")
+        self.plugin_event("player_leave")
         del players[self.entity_id]
         ServerProtocol.player_left(self)
 
@@ -83,7 +80,7 @@ class Mineserver(ServerProtocol):
     def handle_chat(self, message):
         message = message.encode('utf8')
         message = "<{0}> {1}".format(self.username, message)
-        self.plugin_event("player_chat_event", message)
+        self.plugin_event("player_chat", message)
         self.logger.info(message)  # Write chat message in server console
         self.send_chat(message)  # send chat message to all players on server
 
@@ -91,16 +88,17 @@ class Mineserver(ServerProtocol):
         self.logger.info("Player " + self.username + " issued server command: " + command_string)
         command_list = command_string.split(" ")  # Command list - e.g ['/login','123123123','123123123']
         command, arguments = command_list[0], command_string.split(" ")[1:]  # Get command and arguments
-        self.plugin_event("player_command_event", command, arguments)
+        self.plugin_event("player_command", command, arguments)
 
     def packet_player_position(self, buff):
         x, y, z, on_ground = buff.unpack('ddd?')  # X Y Z - coordinates, on ground - boolean
-        self.plugin_event("player_move_event", x, y, z, on_ground)
+        self.plugin_event("player_move", x, y, z, on_ground)
         # Currently don't work
         '''for eid,player in players.iteritems():
             if player!=self:
                 player.send_spawn_player(eid,player.uuid,x,y,z,0,0)
         '''
+
     def packet_chat_message(self, buff):
         chat_message = buff.unpack_string()
         if chat_message[0] == '/':
@@ -112,6 +110,7 @@ class Mineserver(ServerProtocol):
         buff = self.buff_type.pack_varint(entity_id)+self.buff_type.pack_uuid(player_uuid)+self.buff_type.pack("dddbbBdb",x,y,z,yaw,pitch,0,7,health)
         self.send_packet("spawn_player",buff)
     '''
+
     def send_empty_chunk(self, x, z):  # args: chunk position ints (x, z)
         self.send_packet("chunk_data", self.buff_type.pack('ii?H', x, z, True, 0) + self.buff_type.pack_varint(0))
 

@@ -1,9 +1,0 @@
-[Core]
-Name = Core plugin
-Module = plugin
-
-[Documentation]
-Author = TiberiumPY
-Version = 0.1
-Website = http://github.com/TiberiumPY/puremine
-Description = Core plugin for server
