@@ -13,12 +13,11 @@ Start puremine.py to run. To change config - edit server.properties
 This repo is a rewritten fork of https://github.com/Armored-Dragon/pymineserver
 
 Puremine also have basic plugin support: you need to create a directory
-in plugins folder, and then, create two files:
+in plugins folder, and then, create how many files do you want:
 
 anynameofscript.py
-
-anynameofscript.info  -< but you will need to put script name in .info file
+anotherscript.py
 
 You can check the example plugin to see what you need to put in this files :)
 
-Plugin system made with YAPSY - http://yapsy.sourceforge.net/index.html
+Plugin system originally taken from https://github.com/zeuxisoo/python-pluginplot and heavily modified
