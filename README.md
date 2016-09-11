@@ -17,8 +17,8 @@ in plugins folder, and then, create two files:
 
 anynameofscript.py
 
-anynameofscript.info
+anynameofscript.info  -< but you will need to put script name in .info file
 
 You can check the example plugin to see what you need to put in this files :)
 
-Plugin system made with YAPSI - http://yapsy.sourceforge.net/index.html
+Plugin system made with YAPSY - http://yapsy.sourceforge.net/index.html
