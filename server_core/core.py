@@ -1,4 +1,5 @@
 # coding=utf-8
+import traceback
 
 from server_core.server import Mineserver, MineFactory
 
@@ -14,7 +15,6 @@ class Pureserver(Mineserver):
 class PureFactory(MineFactory):
     protocol = Pureserver
 
-
 def main(properties_dict):
     factory = PureFactory()
     factory.motd = properties_dict.get("motd", "Pureserver test")
@@ -28,19 +28,46 @@ def main(properties_dict):
     from yapsy.PluginManager import PluginManager, PluginFileLocator
     pm = PluginManager()
     pl = PluginFileLocator()
+
     pl.setPluginInfoExtension("info")
     pm.setPluginLocator(pl)
     pm.setPluginPlaces(["./plugins"])
+
     pm.collectPlugins()
+
+    # Local list
     plugins = []
-    factory.plugins = []
+
     for pluginInfo in pm.getAllPlugins():
-        plugins.append(pluginInfo)
+        plugins.append(pluginInfo)  # Plugin info
+
     factory.plugin_infos = {}
+
+    # Dict: method_name - method list
+    # Events to search methods in plugins
+    factory.event_handlers = {
+        "player_join_event": [],
+        "player_leave_event": [],
+        "player_move_event": [],
+        "player_chat_event": [],
+        "player_command_event": []
+    }
+
+    #Search event handlers and add them to dictionary
     for plugin in plugins:
-        factory.plugin_infos[plugin.name] = plugin.description
-        plugin = plugin.plugin_object
-        factory.plugins.append(plugin)
+        factory.plugin_infos[plugin.name] = plugin.description  # Info about plugin
+        plugin = plugin.plugin_object  # Plugin class object
+
+        for event in factory.event_handlers.keys():
+            try:
+                method = getattr(plugin, event)
+                if callable(method):
+                    factory.event_handlers[event].append(method)
+            except AttributeError:
+                print(traceback.print_exc())
+                continue  # If method doesn't exist - continue
+
+
     ###PLUGIN INFOS ARE STORED IN PLUGINS LIST NOW
     factory.listen(ip, port)
     factory.run()

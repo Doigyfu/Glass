@@ -4,16 +4,8 @@
 ###BUILD-IN STUFF
 from __future__ import print_function
 
-import codecs
 import random
-
-
-###TWISTED STUFF###
-
-
-def u(x):
-    return codecs.unicode_escape_decode(x)[0]
-
+import traceback
 
 players = {}
 ###PROTOCOL AND SERVER STUFF
@@ -35,14 +27,13 @@ class Mineserver(ServerProtocol):
 
     # Plugin event method
     def plugin_event(self, event_name, *args, **kwargs):
-        for plugin in self.factory.plugins:
-            try:
-                getattr(plugin, event_name)(self, *args, **kwargs)()  # Try to call plugin method with arguments
-            except TypeError:
-                continue  # If method doesn't exist - continue
-            except Exception as ex:
-                print(ex.message)  # Catch exceptions in plugin
-
+        for event, handlers in self.factory.event_handlers.iteritems():
+            if event_name == event:
+                for event_handler in handlers:
+                    try:
+                        event_handler(self, *args, **kwargs)  # Call event handler
+                    except:  # If plugin method raised an exception
+                        traceback.print_exc()  # Print exception
     def player_joined(self):
         ServerProtocol.player_joined(self)
         self.ip = self.remote_addr.host
@@ -105,9 +96,11 @@ class Mineserver(ServerProtocol):
     def packet_player_position(self, buff):
         x, y, z, on_ground = buff.unpack('ddd?')  # X Y Z - coordinates, on ground - boolean
         self.plugin_event("player_move_event", x, y, z, on_ground)
-        # for entity_id,player in players.iteritems():
-        # player.send_spawn_player(entity_id,player.uuid,x,y,z,0,0)
-
+        # Currently don't work
+        '''for eid,player in players.iteritems():
+            if player!=self:
+                player.send_spawn_player(eid,player.uuid,x,y,z,0,0)
+        '''
     def packet_chat_message(self, buff):
         chat_message = buff.unpack_string()
         if chat_message[0] == '/':
@@ -115,9 +108,10 @@ class Mineserver(ServerProtocol):
         else:
             self.handle_chat(chat_message)
 
-    # def send_spawn_player(self,entity_id,player_uuid,x,y,z,yaw,pitch):
-
-
+    '''def send_spawn_player(self,entity_id,player_uuid,x,y,z,yaw,pitch):
+        buff = self.buff_type.pack_varint(entity_id)+self.buff_type.pack_uuid(player_uuid)+self.buff_type.pack("dddbbBdb",x,y,z,yaw,pitch,0,7,health)
+        self.send_packet("spawn_player",buff)
+    '''
     def send_empty_chunk(self, x, z):  # args: chunk position ints (x, z)
         self.send_packet("chunk_data", self.buff_type.pack('ii?H', x, z, True, 0) + self.buff_type.pack_varint(0))
 

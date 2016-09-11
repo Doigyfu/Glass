@@ -1,9 +1,19 @@
-'''class ExtendedBuffer(Buffer):
+from quarry.utils.buffer import Buffer
+
+
+# Will provide buffer for sendind complicated stuff, like Entity Metadata
+class ExtendedBuffer(Buffer):
     @classmethod
-    def pack_entity_metadata(cls, index, value_of_type_field, type_of_value):
-        out = b""
-        cls.pack("Bb")
-'''
+    def pack_slot_data(cls, block_id, item_count=1, item_damage=1, nbt_data=None):
+        return cls.pack("h", -1)
+
+    @classmethod
+    @classmethod
+    def pack_entity_metadata(cls, index=1, type=1, value=1):
+        bitmask = 0
+        bitmask = 0 | 0x01  # On fire
+        buff = cls.pack("b", bitmask)
+        buff += cls.pack_varint()
 
 
 class Position(object):
