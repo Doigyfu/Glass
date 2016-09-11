@@ -57,10 +57,15 @@ def main(properties_dict):
         factory.plugin_infos[plugin.name] = plugin.description  # Info about plugin
         plugin = plugin.plugin_object  # Plugin class object
 
+        try:  # Try to call init method of plugin (if not present - continue)
+            plugin.plugin_init()
+        except:
+            pass
+
         for event in factory.event_handlers.keys():
             try:
                 method = getattr(plugin, event)
-                if callable(method):
+                if callable(method):  #If method is callable(so it's exist)
                     factory.event_handlers[event].append(method)
             except AttributeError:
                 continue  # If method doesn't exist - continue
@@ -68,6 +73,7 @@ def main(properties_dict):
 
     ###PLUGIN INFOS ARE STORED IN PLUGINS LIST NOW
     factory.listen(ip, port)
+    print("Server started, waiting for connections...")
     factory.run()
 
 
