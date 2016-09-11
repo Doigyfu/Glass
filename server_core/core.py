@@ -1,5 +1,4 @@
 # coding=utf-8
-import traceback
 
 from server_core.server import Mineserver, MineFactory
 
@@ -64,7 +63,6 @@ def main(properties_dict):
                 if callable(method):
                     factory.event_handlers[event].append(method)
             except AttributeError:
-                print(traceback.print_exc())
                 continue  # If method doesn't exist - continue
 
 
