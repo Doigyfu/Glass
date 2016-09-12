@@ -32,6 +32,6 @@ class Position(object):
 
     def __repr__(self):
         return "%s(x=%d y=%d z=%d)" % ("Position", self.x, self.y, self.z)
+
     def get_xyz(self):
         return self.x, self.y, self.z
-

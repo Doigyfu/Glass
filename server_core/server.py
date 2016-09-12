@@ -56,6 +56,7 @@ class Mineserver(ServerProtocol):
         self.tasks.add_loop(1, self.keepalive_send)
         self.send_chat_json(serverdata.join_json(self), 1)  # Print welcome message
         self.plugin_event("player_join")
+
     def player_left(self):
         self.plugin_event("player_leave")
         del players[self.entity_id]
@@ -119,8 +120,9 @@ class Mineserver(ServerProtocol):
         self.send_packet("change_game_state", self.buff_type.pack('Bf', reason, state))
 
     def set_position(self, x, y, z, xr=0, yr=0, on_ground=False):
-        pos = Position(x, y, z)
-        self.send_position_and_look(pos, xr, yr, on_ground)
+        self.position.set(x, y, z)
+        self.send_position_and_look(self.position, xr, yr, on_ground)
+
     def send_position_and_look(self, position, xr, yr,
                                on_ground):  # args: num (x, y, z, x rotation, y rotation, on-ground[bool])
         x, y, z = position.get_xyz()
@@ -175,6 +177,7 @@ class Mineserver(ServerProtocol):
 
     def send_keep_alive(self, keepalive_id):  # args: (varint data[int])
         self.send_packet("keep_alive", self.buff_type.pack_varint(keepalive_id))
+
     def send_plist_head_foot(self, header, footer):  # args: str (header, footer)
         self.send_packet("player_list_header_footer",
                          self.buff_type.pack_chat(header) +
