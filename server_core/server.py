@@ -34,7 +34,7 @@ class Mineserver(ServerProtocol):
     def player_joined(self):
         ServerProtocol.player_joined(self)
         self.ip = self.remote_addr.host
-        self.spawn_position = Position(0, 66, 0)
+        self.position = Position(0, 66, 0)
         self.entity_id = self.get_free_id()
         self.default_gamemode = 1  # 0: Survival, 1: Creative, 2: Adventure, 3: Spectator. Bit 3 (0x8) is the hardcore flag.
         self.dimension = 0  # -1: Nether, 0:Overworld, 1:End
@@ -44,10 +44,11 @@ class Mineserver(ServerProtocol):
         players[
             self.entity_id] = self  # add player object to dict eid:player , so we can iterate over ALL players on the server
         self.logger.info("UUID of player {0} is {1}".format(self.username, self.uuid))
+        self.nickname = self.username
         self.send_game(self.entity_id, self.default_gamemode, self.dimension, self.difficulty, "default", False)
-        self.send_spawn_pos(self.spawn_position)
+        self.send_spawn_pos(self.position)
         self.send_abilities(True, True, True, True, 0.2, 0.2)
-        self.send_position_and_look(self.spawn_position, 0, 0, False)
+        self.send_position_and_look(self.position, 0, 0, False)
         self.send_empty_chunk(0, 0)
         self.logger.info("{0} ({1}) logged in with entity id {2}".format(self.username, self.ip,
                                                                          self.entity_id) + " at ((0.0, 64.0, 0.0))")
@@ -55,7 +56,6 @@ class Mineserver(ServerProtocol):
         self.tasks.add_loop(1, self.keepalive_send)
         self.send_chat_json(serverdata.join_json(self), 1)  # Print welcome message
         self.plugin_event("player_join")
-
     def player_left(self):
         self.plugin_event("player_leave")
         del players[self.entity_id]
@@ -79,8 +79,8 @@ class Mineserver(ServerProtocol):
 
     def handle_chat(self, message):
         message = message.encode('utf8')
-        message = "<{0}> {1}".format(self.username, message)
         self.plugin_event("player_chat", message)
+        message = "<{0}> {1}".format(self.username, message)
         self.logger.info(message)  # Write chat message in server console
         self.send_chat(message)  # send chat message to all players on server
 
@@ -93,6 +93,7 @@ class Mineserver(ServerProtocol):
     def packet_player_position(self, buff):
         x, y, z, on_ground = buff.unpack('ddd?')  # X Y Z - coordinates, on ground - boolean
         self.plugin_event("player_move", x, y, z, on_ground)
+        self.position.set(x, y, z)
         # Currently don't work
         '''for eid,player in players.iteritems():
             if player!=self:
@@ -117,6 +118,9 @@ class Mineserver(ServerProtocol):
     def send_change_game_state(self, reason, state):  # http://wiki.vg/Protocol#Change_Game_State
         self.send_packet("change_game_state", self.buff_type.pack('Bf', reason, state))
 
+    def set_position(self, x, y, z, xr=0, yr=0, on_ground=False):
+        pos = Position(x, y, z)
+        self.send_position_and_look(pos, xr, yr, on_ground)
     def send_position_and_look(self, position, xr, yr,
                                on_ground):  # args: num (x, y, z, x rotation, y rotation, on-ground[bool])
         x, y, z = position.get_xyz()
@@ -171,7 +175,6 @@ class Mineserver(ServerProtocol):
 
     def send_keep_alive(self, keepalive_id):  # args: (varint data[int])
         self.send_packet("keep_alive", self.buff_type.pack_varint(keepalive_id))
-
     def send_plist_head_foot(self, header, footer):  # args: str (header, footer)
         self.send_packet("player_list_header_footer",
                          self.buff_type.pack_chat(header) +
