@@ -3,7 +3,6 @@
 # This code was originally taken from https://github.com/zeuxisoo/python-pluginplot
 import logging
 
-__all__ = ['Plugin', 'PluginException']
 
 
 class PluginException(Exception):

@@ -9,8 +9,6 @@ import threading
 import traceback
 import types
 
-__all__ = ['PluginSystem']
-
 local_data = threading.local()
 
 shared_space = types.ModuleType(__name__ + '.shared_space')
