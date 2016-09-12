@@ -9,7 +9,7 @@ plugin = Plugin(name="Example plugin", description="Example plugin for developer
 test = 1
 plugin.log("Initialized successfully...")
 
-
+__all__ = ['plugin']
 @plugin.event("player_join")
 # You can name event handler functions with ANY name
 # Player argument must be ALWAYS present - it's player object

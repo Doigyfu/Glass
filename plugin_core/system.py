@@ -57,38 +57,15 @@ class PluginSystem(object):
         else:
             self._init_plugin_files()
 
-    def register_module(self, module_name):
-        module_names = module_name.split('.')
-        parent_names = []
-
-        for name in module_names:
-            parent_module_name = '.'.join(parent_names)
-            current_module_name = "{0}.{1}".format(parent_module_name, name) if parent_module_name else name
-
-            # Try to load exists module. If not exists, create it
-            try:
-                new_module = __import__(current_module_name, fromlist=['__name__'])
-            except:
-                new_module = types.ModuleType(current_module_name)
-                sys.modules[new_module.__name__] = new_module
-
-            # Assign new module object to parent module
-            if parent_module_name:
-                parent_module = __import__(parent_module_name, fromlist=['__name__'])
-                setattr(parent_module, name, new_module)
-
-            parent_names.append(name)
-
     def _init_plugin_files(self):
         for folder_path, folder_names, filenames in os.walk(self.folder):
             for filename in filenames:
-                if filename.endswith('.py'):
+                if filename.endswith('.py') and filename != "__init__.py":
                     # path/to/plugins/plugin/foo.py > plugin/foo.py > plugin.foo > shared_space.plugin.foo
                     full_plugin_path = os.path.join(folder_path, filename)
                     base_plugin_path = os.path.relpath(full_plugin_path, self.folder)
                     base_plugin_name = os.path.splitext(base_plugin_path)[0].replace(os.path.sep, '.')
                     module_source_name = "{0}.file_{1}".format(shared_space.__name__, base_plugin_name)
-
                     loaded_module = imp.load_module(
                         module_source_name,
                         *imp.find_module(os.path.splitext(filename)[0], [folder_path])
