@@ -7,7 +7,7 @@ plugin = Plugin(name="Example plugin", description="Example plugin for developer
 
 # You can init your global variables anywhere (except functions, of course), for example here:
 test = 1
-plugin.log("Initialized successfully...")
+event = plugin.event
 @plugin.event("player_join")
 # You can name event handler functions with ANY name
 # Player argument must be ALWAYS present - it's player object
@@ -41,5 +41,7 @@ def chat(player, message):
 
 
 @plugin.event("player_command")
-def command(player, command, args):
+def command(player, command, args):  # That's it!
+    if command == "example":
+        player.send_chat("Yes, I'm here!")
     plugin.log("Player command event from example plugin %s with args-> %s" % (command, str(args)))

@@ -6,7 +6,6 @@ from plugin_core import Plugin
 # You SHOULD name instance of Plugin() as plugin, otherwise it wouldn't work!!!
 plugin = Plugin(name="Core", description="Core plugin for server", version="")
 
-plugin.log("Initialized successfully...")
 
 
 @plugin.event("player_command")

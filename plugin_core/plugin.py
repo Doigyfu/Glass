@@ -20,6 +20,7 @@ class Plugin(object):
             "{name} {prefix}{version}".format(name=name, prefix=self.version_prefix, version=version))
         self.logger.setLevel(logging.INFO)
         self.log = self.logger.info
+        self.log("Initialized successfully...")
 
     # Event wrapper
     def event(self, event_name=None):
