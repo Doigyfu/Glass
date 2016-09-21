@@ -3,12 +3,18 @@
 from plugin_core import Plugin
 
 # You can optionally enter the name of your plugin, description, and version
-plugin = Plugin(name="Example plugin", description="Example plugin for developers", version="0.1alpha")
+plugin = Plugin(name="Example plugin", description="Example plugin for developers")
 
 # You can init your global variables anywhere (except functions, of course), for example here:
 test = 1
+
+# For simpler usage you can assign plugin.event to variable
 event = plugin.event
-@plugin.event("player_join")
+
+plugin.log("Initialized successfully")
+
+
+@event("player_join")
 # You can name event handler functions with ANY name
 # Player argument must be ALWAYS present - it's player object
 def join(player):
@@ -17,31 +23,31 @@ def join(player):
     player.y = 0
     player.z = 0
     # The default logger is plugin | LOG_LEVEL | message
-    plugin.log(player.username)
+    plugin.log("Wow, {name} joined the server!".format(name=player.username))
 
 
-@plugin.event("player_leave")
-def leave(player):
+@event("player_leave")
+def he_leaved(player):
     plugin.log("Goodbye from plugin , %s :(" % player.nickname)
 
 
-@plugin.event("player_move")
-def move(player, x, y, z, on_ground):
+@event("player_move")
+def moved(player, x, y, z, on_ground):
     # This variables are not equal for different players
     # If player moved on more than 7 x coord let's write in log
-    # Player.position is Position() class from types.py
     if abs(player.position.x - x) > 7:
         plugin.log("X delta is bigger than seven")
+        # Player.position is Position() class from types.py
         print(player.position)
 
 
-@plugin.event("player_chat")
-def chat(player, message):
+@event("player_chat")
+def chatmsg(player, message):
     plugin.log("Player chat event from example plugin -> %s %s" % (player.nickname, message))
 
 
-@plugin.event("player_command")
-def command(player, command, args):  # That's it!
+@event("player_command")
+def cmd(player, command, args):  # That's it!
     if command == "example":
         player.send_chat("Yes, I'm here!")
     plugin.log("Player command event from example plugin %s with args-> %s" % (command, str(args)))

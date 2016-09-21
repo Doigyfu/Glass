@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # This code was originally taken from https://github.com/zeuxisoo/python-pluginplot
+# There's a lot of magic (but it works!). Don't blame me for this
 import __builtin__ as builtin
 import imp
 import os
@@ -16,33 +17,26 @@ shared_space.__path__ = []
 sys.modules[shared_space.__name__] = shared_space
 
 
-class PluginException(Exception): pass
-
-
-class EventError(PluginException): pass
-
-
 class PluginSystem(object):
     def __init__(self, folder=None):
-        self.events = {}
+        self.events = {}  # key is event name, value is list of methods, those are subscribed to this method
         self.folder = folder
 
     def add_event(self, name, method):
-        if name in self.events:
+        if name in self.events:  # if event is already initialized, append
             self.events[name].append(method)
-        else:
+        else:  # else create a new list
             self.events[name] = [method]
 
     def call_event(self, name, *args, **kwargs):
         events_ = self.events.get(name)
-        if not events_:
+        if not events_:  # If there are not event handlers for our great event
             pass
-            # raise EventError("Not found event named: {0}".format(name))
-        else:
-            for event_ in events_:
+        else:  # If there's a method handler (one or more)
+            for event_ in events_:  # Loop over all of them
                 try:
-                    event_(*args, **kwargs)
-                except:
+                    event_(*args, **kwargs)  # Try to execute event with arguments
+                except:  # If plugin raised an error, let's catch it and print to the console
                     print(traceback.print_exc())
             return None
 
@@ -51,7 +45,7 @@ class PluginSystem(object):
 
     def register_events(self):
         if not self.folder:
-            raise PluginException("Plugin.folder can not be None")
+            raise ValueError("Plugin.folder can not be None")
         else:
             self._init_plugin_files()
 
@@ -94,4 +88,5 @@ def override_import(import_method):
     return wrapper
 
 
+# Overrides default import method
 builtin.__import__ = override_import(builtin.__import__)

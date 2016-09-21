@@ -3,13 +3,17 @@ import time
 
 from plugin_core import Plugin
 
-# You SHOULD name instance of Plugin() as plugin, otherwise it wouldn't work!!!
-plugin = Plugin(name="Core", description="Core plugin for server", version="")
+# You SHOULD name instance of Plugin() as plugin, otherwise it wouldn't work
+plugin = Plugin(name="Core", description="Core plugin for server (containts all basic stuff)", version="0.1")
+
+# You can do this to make code shorter and cleaner
+event = plugin.event
+
+plugin.log("Initialized successfully...")
 
 
-
-@plugin.event("player_command")
-def command(player, command, args):
+@event("player_command")
+def handler(player, command, args):
     if command == "stop":
         player.send_chat("Server stopping... You will be kicked in two seconds")
         time.sleep(2)
@@ -23,23 +27,24 @@ def command(player, command, args):
         if len(args) == 3:
             # Set player position
             try:
-                x, y, z = [float(arg) for arg in args]
+                x, y, z = [float(arg) for arg in args]  # Convert strings to floats
                 player.set_position(x, y, z)
                 player.send_chat("Teleported to X:%f Y:%f Z:%f successfully" % (x, y, z))
-            except ValueError:
+            except ValueError:  # If we can't convert it
                 player.send_chat("You need to supply numbers!")
         else:
             player.send_chat("tppos takes 3 arguments: x,y,z")
     if command == "help":
+        # TODO: Make something useful here
         player.send_chat("There's nothing here, sorry :(")
 
 
 # You can handle one event how many times do you want!
-@plugin.event("player_command")
+@event("player_command")
 def broadcast(player, command, args):
     if command == "broadcast":
-        try:
-            message = ' '.join(args)
+        if args:
+            message = ' '.join(args)  # Join all arguments in one message
             player.send_chat_all("SERVER BROADCAST: " + message)
-        except:
-            player.send_chat("You need to supply one argument - message (/broadcast message asd asd ")
+        else:
+            player.send_chat("You need to supply at least one argument for string! e.g - /broadcast hello")

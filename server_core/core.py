@@ -32,7 +32,7 @@ def main(properties_dict):
     # Search and register all event handlers
     factory.plugin_system.register_events()
     factory.listen(ip, port)
-    print("Server started, waiting for connections...")
+    print("(core.py) Server started, waiting for connections...")
     factory.run()
 
 

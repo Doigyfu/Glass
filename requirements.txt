@@ -1,3 +1,4 @@
+#Minecraft protocol implementations (packet handling, implements all packets in all modes except "play")
 quarry
 openssl
 service_identity
