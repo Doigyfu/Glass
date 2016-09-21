@@ -1,9 +1,9 @@
-# Import plugin class
 import time
 
-from plugin_core import Plugin
+from plugin import Plugin
 
 # You SHOULD name instance of Plugin() as plugin, otherwise it wouldn't work
+# TODO: Fix it
 plugin = Plugin(name="Core", description="Core plugin for server (containts all basic stuff)", version="0.1")
 
 # You can do this to make code shorter and cleaner
@@ -29,7 +29,7 @@ def handler(player, command, args):
             try:
                 x, y, z = [float(arg) for arg in args]  # Convert strings to floats
                 player.set_position(x, y, z)
-                player.send_chat("Teleported to X:%f Y:%f Z:%f successfully" % (x, y, z))
+                player.send_chat("Teleported to X:{0} Y:{1} Z:{2} successfully".format(x, y, z))
             except ValueError:  # If we can't convert it
                 player.send_chat("You need to supply numbers!")
         else:

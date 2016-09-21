@@ -1,6 +1,6 @@
 # You must always import base plugin like this, otherwise it won't work
 
-from plugin_core import Plugin
+from plugin import Plugin
 
 # You can optionally enter the name of your plugin, description, and version
 plugin = Plugin(name="Example plugin", description="Example plugin for developers")
@@ -28,7 +28,7 @@ def join(player):
 
 @event("player_leave")
 def he_leaved(player):
-    plugin.log("Goodbye from plugin , %s :(" % player.nickname)
+    plugin.log("Goodbye from plugin , {username} :(".format(username=player.nickname))
 
 
 @event("player_move")
@@ -37,17 +37,17 @@ def moved(player, x, y, z, on_ground):
     # If player moved on more than 7 x coord let's write in log
     if abs(player.position.x - x) > 7:
         plugin.log("X delta is bigger than seven")
-        # Player.position is Position() class from types.py
+        # Player.position is Position() class from values.py
         print(player.position)
 
 
 @event("player_chat")
 def chatmsg(player, message):
-    plugin.log("Player chat event from example plugin -> %s %s" % (player.nickname, message))
+    plugin.log("Player chat event from example plugin -> {0} {1}".format(player.nickname, message))
 
 
 @event("player_command")
 def cmd(player, command, args):  # That's it!
     if command == "example":
         player.send_chat("Yes, I'm here!")
-    plugin.log("Player command event from example plugin %s with args-> %s" % (command, str(args)))
+    plugin.log("Player command event from example plugin -> command {0} with args-> {1}".format(command, str(args)))

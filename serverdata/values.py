@@ -31,7 +31,7 @@ class Position(object):
         return ((self.x & 0x3FFFFFF) << 38) | ((self.y & 0xFFF) << 26) | (self.z & 0x3FFFFFF)
 
     def __repr__(self):
-        return "%s(x=%d y=%d z=%d)" % ("Position", self.x, self.y, self.z)
+        return "{0}(x={1} y={2} z={3})".format("Position", self.x, self.y, self.z)
 
     def get_xyz(self):
         return self.x, self.y, self.z

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 def join_json(self):
     return {
         'text': "",

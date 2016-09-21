@@ -11,7 +11,7 @@ players = {}
 ###PROTOCOL AND SERVER STUFF
 from quarry.net.server import ServerFactory, ServerProtocol
 import serverdata
-from .types import Position
+from serverdata.values import Position
 
 id_counter = 0  # We need to have unique ID for all entities in a server
 

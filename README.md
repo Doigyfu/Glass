@@ -8,9 +8,9 @@ To install libraries just type:
 pip install -r requirements.txt
 ```
 
-Supports only *Python 2.7* and *PyPy*, Python 3 support is planned.
+Supports only *Python 2.7* and ***PyPy***, Python 3 support is planned.
 
-Start puremine.py to run. To change config - edit server.properties
+Start start.py (in server folder) to run. To change config - edit server.properties in server folder
 
 Puremine also have basic plugin support: you need to create a directory in plugins folder, and then, create how many files do you want: anynameofscript.py anotherscript.py
 
