@@ -1,20 +1,20 @@
-# Puremine
+# Glass
 
-Puremine: Minecraft Modern server in Python - under heavy development
+Glass: Servidor de minecraft implementado em python. O trabalho aqui é feito nas horas vagas.
 
-To install libraries just type:
+Para instalar as libs necessárias, digite no console:
 
 ```
 pip install -r requirements.txt
 ```
 
-Supports only *Python 2.7* and ***PyPy***, Python 3 support is planned.
+Suporta apenas *Python 2.7* e ***PyPy***; o suporte a Python 3 está nos planos.
 
-Start start.py to run. To change config - edit server.properties
+Execute start.py para iniciar o servidor. Para mudar as configs, altere o arquivo server.properties.
 
-Puremine also have basic plugin support: you need to create a directory in plugins folder, and then create script file with any name
+Glass também possúi suporte básico para plugins. Para usá-los, você deve criar um diretório na pasta de plugins e inserir nela os scripts.
 
-You can check the example plugin located in plugins/Example/plugin.py
+Para um exemplo prático, você pode acessar o plugin em plugins/Example/plugin.py
 
-This repo is a rewritten fork of https://github.com/Armored-Dragon/pymineserver.
-Plugin system originally taken from https://github.com/zeuxisoo/python-pluginplot and heavily modified.
+Esse repositório é um fork de https://github.com/Yardanico/puremine, que aparentemente foi abandonado.
+O sistema original de plugins foi pego de https://github.com/zeuxisoo/python-pluginplot e altamente modificado.
